@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Module Batch Editor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f8;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1800px;
+            width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            box-sizing: border-box;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #edf2f7;
+        }
+        h2 { margin: 0; font-size: 1.4rem; color: #1a202c; }
+        
+        .btn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .btn:hover { background-color: #2b6cb0; }
+        .btn-save { background-color: #38a169; }
+        .btn-save:hover { background-color: #2f855a; }
+        .btn-danger { background-color: #e53e3e; }
+        .btn-danger:hover { background-color: #c53030; }
+        
+        /* Layout med modulvelger i sidepanel */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            flex-grow: 1;
+        }
+        
+        .sidebar {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .module-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .module-item {
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .module-item:hover { background: #edf2f7; }
+        .module-item.active {
+            background: #ebf8ff;
+            border-color: #3182ce;
+            color: #2b6cb0;
+            font-weight: 600;
+        }
+        
+        .editor-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .meta-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        .meta-group { display: flex; flex-direction: column; }
+        .meta-group.span-2 { grid-column: span 2; }
+        .meta-group.span-4 { grid-column: span 4; }
+        
+        label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 3px;
+        }
+        input, textarea {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        /* Split Screen for Tekst vs JSON-streng */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            flex-grow: 1;
+            min-height: 2000px;
+        }
+        .pane { display: flex; flex-direction: column; height: 100%; }
+        
+        textarea.md-input {
+            width: 100%;
+            flex-grow: 1;
+            font-family: "Fira Code", "Courier New", Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            resize: none;
+            box-sizing: border-box;
+            background-color: #fcfcfc;
+        }
+        
+        /* Ren JSON-streng pre-visning */
+        pre.json-preview {
+            margin: 0;
+            flex-grow: 1;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 12px;
+            background-color: #1a202c;
+            color: #ae81ff;
+            overflow-y: auto;
+            font-family: "Fira Code", "Courier New", Courier, monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            box-sizing: border-box;
+        }
+        .json-key { color: #f92672; }
+        .json-string { color: #e6db74; }
+        .json-number { color: #ae81ff; }
+        .json-boolean { color: #66d9ef; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-bar">
+        <h2>JSON Module & Batch Editor</h2>
+        <div>
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Load JSON File</button>
+            <button class="btn btn-save" onclick="saveAllModules()">Export Full File</button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Venstre panel: Modulvelger -->
+        <div class="sidebar">
+            <button class="btn" style="background-color: #4a5568;" onclick="createNewModule()">+ New Module</button>
+            <label>Modules in File</label>
+            <div id="moduleList" class="module-list">
+                <!-- Moduler dukker opp her dynamisk -->
+                <div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">No file loaded yet...</div>
+            </div>
+        </div>
+
+        <!-- Høyre panel: Selve editoren -->
+        <div class="editor-area">
+            <div class="meta-section">
+                <div class="meta-group">
+                    <label for="id">@id (Identifier)</label>
+                    <input type="text" id="id" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group">
+                    <label for="track">Track</label>
+                    <input type="text" id="track" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group">
+                    <label for="discipline">Discipline</label>
+                    <input type="text" id="discipline" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group">
+                    <label for="order">Order</label>
+                    <input type="text" id="order" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group span-2">
+                    <label for="name">Name / Title</label>
+                    <input type="text" id="name" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group span-2">
+                    <label for="keywords">Keywords (comma separated)</label>
+                    <input type="text" id="keywords" oninput="syncCurrentData()">
+                </div>
+                <div class="meta-group span-4">
+                    <label for="description">Short Description</label>
+                    <textarea id="description" rows="2" oninput="syncCurrentData()"></textarea>
+                </div>
+            </div>
+
+            <!-- Rendyrket visning: Tekst vs Eksportert JSON-streng -->
+            <div class="workspace">
+                <div class="pane">
+                    <label>Markdown Editor</label>
+                    <textarea id="text" class="md-input" placeholder="Type your markdown here..." oninput="syncCurrentData()"></textarea>
+                </div>
+                <div class="pane">
+                    <label>Export Preview (Current object as JSON string)</label>
+                    <pre id="jsonPreview" class="json-preview"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Holder på listen med alle moduler fra filen
+    let allModules = [];
+    let activeIndex = -1;
+
+    // Helper: safe extract text if article.text is object
+    function extractTextField(data) {
+        if (!data) return '';
+        if (typeof data.text === 'object' && data.text !== null) {
+            return data.text.text || '';
+        }
+        return data.text || data.body || data.markdownContent || '';
+    }
+
+    // --- Kjøres automatisk når siden åpnes ---
+    window.addEventListener('DOMContentLoaded', () => {
+        // Henter index.json automatisk fra samme område på webserveren
+        fetch('index.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Fant ikke index.json (Status: ${response.status})`);
+                }
+                return response.json();
+            })
+            .then(parsed => {
+                // Støtter både objekt med @graph, ren array [], eller enkeltobjekt {}
+                if (parsed && parsed['@graph'] && Array.isArray(parsed['@graph'])) {
+                    allModules = parsed['@graph'];
+                } else if (Array.isArray(parsed)) {
+                    allModules = parsed;
+                } else {
+                    allModules = [parsed];
+                }
+
+                if (allModules.length > 0) {
+                    activeIndex = 0;
+                    renderModuleList();
+                    loadModuleToForm(activeIndex);
+                }
+            })
+            .catch(err => {
+                console.warn("Automatisk innlasting feilet. Venter på manuell fil.", err);
+                // Viser en hjelpetekst i sidepanelet hvis filen mangler
+                document.getElementById('moduleList').innerHTML =
+                    `<div style="color: #e53e3e; font-size: 0.85rem; padding: 10px;">
+                        Kunne ikke laste index.json automatisk. Bruk knappen over for å åpne manuelt.
+                     </div>`;
+            });
+    });
+
+    // --- Filbehandling: Manuell innlasting (Fallback) ---
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const parsed = JSON.parse(evt.target.result);
+                if (parsed && parsed['@graph'] && Array.isArray(parsed['@graph'])) {
+                    allModules = parsed['@graph'];
+                } else if (Array.isArray(parsed)) {
+                    allModules = parsed;
+                } else {
+                    allModules = [parsed];
+                }
+
+                if (allModules.length > 0) {
+                    activeIndex = 0;
+                    renderModuleList();
+                    loadModuleToForm(activeIndex);
+                }
+            } catch (err) {
+                alert('Feil under parsing av JSON. Sjekk at filen har riktig struktur.');
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    // --- Bygg opp listen i sidepanelet ---
+    function renderModuleList() {
+        const listContainer = document.getElementById('moduleList');
+        listContainer.innerHTML = '';
+
+        if (!allModules.length) {
+            listContainer.innerHTML = `<div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">Ingen moduler funnet.</div>`;
+            return;
+        }
+
+        allModules.forEach((mod, index) => {
+            const div = document.createElement('div');
+            div.className = `module-item ${index === activeIndex ? 'active' : ''}`;
+            const displayId = mod['@id'] || mod.id || '';
+            div.innerText = mod.name || displayId || `Uten navn (${index + 1})`;
+            div.onclick = () => {
+                activeIndex = index;
+                renderModuleList();
+                loadModuleToForm(activeIndex);
+            };
+            listContainer.appendChild(div);
+        });
+    }
+
+    // --- Last valgt modul inn i feltene ---
+    function loadModuleToForm(index) {
+        if (index < 0 || index >= allModules.length) return;
+        const data = allModules[index];
+
+        document.getElementById('id').value = data['@id'] || data.id || '';
+        document.getElementById('track').value = data.track || '';
+        document.getElementById('discipline').value = data.discipline || '';
+        document.getElementById('order').value = data.order || '';
+        document.getElementById('name').value = data.name || '';
+        document.getElementById('keywords').value = (data.keywords && Array.isArray(data.keywords)) ? data.keywords.join(', ') : (data.tags ? data.tags.join(', ') : '');
+        document.getElementById('description').value = data.description || '';
+        document.getElementById('text').value = extractTextField(data);
+
+        updateStringPreview();
+    }
+
+    // --- Synkroniser endringer live tilbake til listen i minnet ---
+    function syncCurrentData() {
+        if (activeIndex < 0) return;
+
+        const idValue = document.getElementById('id').value.trim();
+        const trackValue = document.getElementById('track').value.trim();
+        const disciplineValue = document.getElementById('discipline').value.trim();
+        const orderValue = document.getElementById('order').value.trim();
+        const nameValue = document.getElementById('name').value.trim();
+        const descriptionValue = document.getElementById('description').value.trim();
+        const keywordsValue = document.getElementById('keywords').value.split(',').map(k => k.trim()).filter(k => k);
+        const textValue = document.getElementById('text').value;
+
+        // write back using '@id' key and include encodingFormat by default
+        const obj = {
+            "@id": idValue || undefined,
+            track: trackValue || undefined,
+            discipline: disciplineValue || undefined,
+            order: orderValue || undefined,
+            name: nameValue || undefined,
+            description: descriptionValue || undefined,
+            keywords: keywordsValue.length ? keywordsValue : undefined,
+            encodingFormat: "text/markdown",
+            text: textValue || undefined
+        };
+
+        // Remove undefined keys to keep output tidy
+        const cleaned = {};
+        Object.keys(obj).forEach(k => {
+            if (obj[k] !== undefined && obj[k] !== null && !(Array.isArray(obj[k]) && obj[k].length === 0) && String(obj[k]) !== '') {
+                cleaned[k] = obj[k];
+            }
+        });
+
+        allModules[activeIndex] = cleaned;
+
+        const items = document.querySelectorAll('.module-item');
+        if (items[activeIndex]) {
+            const displayId = cleaned['@id'] || cleaned.id || '';
+            items[activeIndex].innerText = cleaned.name || displayId || `Uten navn`;
+        }
+
+        updateStringPreview();
+    }
+
+    // --- Opprett en helt ny tom modul ---
+    function createNewModule() {
+        const baseId = `ny-modul-${allModules.length + 1}`;
+        const newMod = {
+            "@id": baseId,
+            "track": "",
+            "order": "",
+            "name": "Ny modul",
+            "description": "",
+            "discipline": "",
+            "keywords": [],
+            "encodingFormat": "text/markdown",
+            "text": ""
+        };
+        allModules.push(newMod);
+        activeIndex = allModules.length - 1;
+        renderModuleList();
+        loadModuleToForm(activeIndex);
+    }
+
+    // --- Fargelagt forhåndsvisning av JSON-strengen med \n ---
+    function updateStringPreview() {
+        if (activeIndex < 0) {
+            document.getElementById('jsonPreview').innerHTML = '';
+            return;
+        }
+
+        const currentObj = allModules[activeIndex];
+        const jsonStr = JSON.stringify(currentObj, null, 2);
+
+        const safeStr = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const highlighted = safeStr.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+
+        document.getElementById('jsonPreview').innerHTML = highlighted;
+    }
+
+    // --- Lagre og eksporter HELE filen (en array av moduler) ---
+    function saveAllModules() {
+        if (allModules.length === 0) {
+            alert('Ingen data å eksportere.');
+            return;
+        }
+
+        // If original source was a JSON-LD object with @graph, you may want to export the array directly.
+        const finalString = JSON.stringify(allModules, null, 2);
+        const blob = new Blob([finalString], { type: "application/json" });
+
+        const link = document.createElement('a');
+        link.download = `index.json`; // Endret standard filnavn til index.json for enkelhetens skyld
+        link.href = URL.createObjectURL(blob);
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+</body>
+</html>
