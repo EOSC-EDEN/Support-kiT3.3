@@ -1,4 +1,4 @@
-An early mockup of Support kit T3.3 - in the branch orphant
+An early mockup of Support kit T3.3 - in the branch orphant. AI have been used to create and check code for the mock-up.
 
 html,js,css and json (includes also markdown-it). should run on any web server as is. 
 
