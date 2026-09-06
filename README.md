@@ -1,1 +1,1 @@
-6th sept - SH created the branch orphant, uploading code and testing gh pages for mockup. This main branch will soon (together with other branches) be used for next steps of developments. 
+6th sept - SH created the branch orphant, uploading code and testing gh pages for mockup. This main branch will rather (together with other branches) be used for next steps of developments.The orphant branch is mostly for reference and foldback when presenting the support kit in early stages.  
