@@ -17,7 +17,6 @@ const CONFIG = {
   shareUrl: (id) => `${location.origin}${location.pathname}?id=${id}`,
 };
 
-// FIXED: Native closure function keeps structural lexical scope context bound safely
 const debounce = (fn, ms) => {
   let t;
   return function(...args) {
@@ -59,7 +58,6 @@ const rewriteAnchorLinks = (container, articleId) => {
     a.setAttribute('href', `#${prefix}${bare}`);
   });
 };
-
 class KitApp {
   constructor() {
     this._state = {
@@ -126,16 +124,15 @@ class KitApp {
   _syncUrl(params = {}, hash = '') {
     const url = new URL(location.href);
     url.search = '';
+    
     Object.entries(params).forEach(([k, v]) => {
-      if (v != null) url.searchParams.set(k, String(v));
+      if (v != null && v !== '') url.searchParams.set(k, String(v));
     });
+    
     url.hash = hash ? (hash.startsWith('#') ? hash.slice(1) : hash) : '';
     history.pushState({}, '', url);
 
-    // Re-run route logic so UI (tags, modules, active article) updates immediately
-    // after a programmatic URL change.
-    // Note: this does not detect manual edits to the address bar without reload.
-    this._applyRoute();
+    this._filter(false);
   }
 
   _applyRoute() {
@@ -143,8 +140,14 @@ class KitApp {
     const id = url.searchParams.get('id');
     const tag = url.searchParams.get('tag');
     const track = url.searchParams.get('track');
+    const query = url.searchParams.get('q'); 
 
     this._state.trackFilter = track || 'all';
+    this._state.query = query || ''; 
+    
+    if (this._refs.searchInput) {
+      this._refs.searchInput.value = this._state.query;
+    }
     
     this._filterButtons.forEach(btn => {
       const isTargetActive = btn.dataset.track === this._state.trackFilter;
@@ -156,21 +159,15 @@ class KitApp {
       this._state.tagFilter = null;
       this._filter(false);
       requestAnimationFrame(() => this._scrollToAnchor(url.hash));
-    } else if (tag) {
-      this._state.activeId = null;
-      // FIXED: url.searchParams.get already returns decoded value — avoid double-decode
-      this._state.tagFilter = tag;
-      this._filter(true);
     } else {
       this._state.activeId = null;
-      this._state.tagFilter = null;
+      this._state.tagFilter = tag;
       this._filter(true);
     }
 
     this._renderGlobalTagCloud();
     this._syncResetButton();
   }
-
   async _loadArticles() {
     const { articlesContainer } = this._refs;
     try {
@@ -235,26 +232,20 @@ class KitApp {
     } else {
       result.sort((a, b) => {
         const ta = a.track;
-        // FIXED: Replaced 'b.trackFilter' typo with accurate structured key targeting configuration blocks
         const tb = b.track;
         if (ta !== tb) return ta.localeCompare(tb);
         
-        // FIXED: Correct radix for parseInt
         const orderA = parseInt(a.order || 0, 10);
         const orderB = parseInt(b.order || 0, 10);
         return orderA - orderB;
       });
     }
 
-
     this._state.filtered = result;
     if (resetPagination) this._state.displayed = CONFIG.itemsPerPage;
     this._render();
   }
 
-  /**
-   * Kit Learning App - Part 3 (Single-File Data Store - Fixed MD Identifier)
-   */
   _render() {
     const { articlesContainer, loadMoreWrapper } = this._refs;
     const { filtered, displayed } = this._state;
@@ -299,7 +290,6 @@ class KitApp {
     const tagsHtml = articleTags.map((tag) => {
       const activeCls = tag === this._state.tagFilter ? ' active' : '';
       const tagHtml = this._highlight(tag, words);
-      // FIXED: escape attribute value for data-tag
       return `<button class="badge tag-click-btn${activeCls}" data-tag="${this._escapeHtml(tag)}">#${tagHtml}</button>`;
     }).join(' ');
 
@@ -308,7 +298,6 @@ class KitApp {
       const markdownRenderer = this._getMarkdownRenderer();
       let body = '';
       
-      // FIXED: Extract the string text safely even if 'article.text' is an object payload
       const rawTextSource = typeof article.text === 'object' ? article.text.text : article.text;
       const rawMarkdown = rawTextSource || article.body || article.markdownContent;
       const format = article.encodingFormat || '';
@@ -326,7 +315,6 @@ class KitApp {
       const currentTrack = article.track;
       const currentOrder = parseInt(article.order || 0, 10);
       
-      // FIXED: Adaptive verification strategy handles gaps in modular indexing sequences safely
       const next = this._state.all
         .filter((a) => {
           const t = a.track;
@@ -354,7 +342,6 @@ class KitApp {
 
     let snippetHtml = '';
     if (words.length > 0 && !isExpanded) {
-      // FIXED: Normalized raw data conversion layers protect text manipulation methods from crashing
       const stringifiedSource = typeof article.text === 'object' ? (article.text.text || '') : (article.text || article.body || article.markdownContent || '');
       const snippet = this._createSearchSnippet(stringifiedSource, words);
       if (snippet) {
@@ -385,12 +372,10 @@ class KitApp {
       </article>
     `;
   }
-
   _renderGlobalTagCloud() {
     const cloud = this._refs.globalTagCloud;
     if (!cloud) return;
 
-    // Use the current track filter as the source for tags. When track = 'all' we use all items.
     const sourceItems =
       this._state.trackFilter && this._state.trackFilter !== 'all'
         ? this._state.all.filter((a) => a.track === this._state.trackFilter)
@@ -413,7 +398,6 @@ class KitApp {
       .sort()
       .map((tag) => {
         const active = tag === this._state.tagFilter ? ' active' : '';
-        // FIXED: escape attribute value for data-tag
         return `<button class="global-tag-btn${active}" data-tag="${this._escapeHtml(tag)}">#${this._escapeHtml(tag)}</button>`;
       })
       .join(' ');
@@ -433,9 +417,6 @@ class KitApp {
     noResults?.classList.toggle('hidden', filtered.length > 0);
   }
 
-  /**
-   * Kit Learning App - Part 4 (Universal Compatible Version)
-   */
   _onSearch(raw) {
     const cleanQuery = raw.trim().toLowerCase();
     this._syncResetButton();
@@ -456,16 +437,16 @@ class KitApp {
       targetParams.track = this._state.trackFilter;
     }
     if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+    if (this._state.query) targetParams.q = this._state.query;
+    if (this._state.activeId) targetParams.id = this._state.activeId;
     
     this._syncUrl(targetParams);
-    this._filter(true);
   }
 
   _setTrackFilter(track, activeBtn) {
     this._state.trackFilter = track;
     this._filterButtons.forEach((b) => b.classList.toggle('active', b === activeBtn));
     
-    // If a tag is selected but it doesn't exist in the newly selected track, clear it.
     if (this._state.tagFilter && track !== 'all') {
       const tagStillExists = this._state.all.some((a) => {
         if (a.track !== track) return false;
@@ -483,18 +464,18 @@ class KitApp {
       
     const targetParams = { track };
     if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+    if (this._state.query) targetParams.q = this._state.query;
 
     const currentTrack = activeArticle?.track;
 
     if (activeArticle && track !== 'all' && currentTrack !== track) {
       this._state.activeId = null;
-      this._syncUrl(targetParams);
-    } else {
-      if (this._state.activeId) targetParams.id = this._state.activeId;
-      this._syncUrl(targetParams);
+    } else if (this._state.activeId) {
+      targetParams.id = this._state.activeId;
     }
     
-    this._filter(true);
+    this._syncUrl(targetParams);
+    this._renderGlobalTagCloud();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -507,12 +488,12 @@ class KitApp {
       targetParams.track = this._state.trackFilter;
     }
     if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+    if (this._state.query) targetParams.q = this._state.query;
     if (this._state.activeId) targetParams.id = this._state.activeId;
     
     this._syncUrl(targetParams);
     this._syncResetButton();
     this._renderGlobalTagCloud();
-    this._filter(true);
   }
 
   async _selectModule(id, hash = '') {
@@ -522,16 +503,14 @@ class KitApp {
     }
     this._state.activeId = id;
     
-    const article = this._state.all.find((a) => a["@id"] === id);
-    
     const targetParams = { id };
     if (this._state.trackFilter && this._state.trackFilter !== 'all') {
       targetParams.track = this._state.trackFilter;
     }
     if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+    if (this._state.query) targetParams.q = this._state.query;
     
     this._syncUrl(targetParams, hash);
-    this._filter(false);
     this._scrollToAnchor(hash || location.hash);
   }
 
@@ -542,9 +521,9 @@ class KitApp {
       targetParams.track = this._state.trackFilter;
     }
     if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+    if (this._state.query) targetParams.q = this._state.query;
     
     this._syncUrl(targetParams);
-    this._filter(false);
   }
 
   _reset() {
@@ -564,7 +543,6 @@ class KitApp {
     this._syncUrl(targetParams);
     this._refs.resetBtn?.classList.add('invisible');
     this._renderGlobalTagCloud();
-    this._filter(true);
   }
 
   async _copyShareLink(id, btn) {
@@ -629,6 +607,7 @@ class KitApp {
         targetParams.track = this._state.trackFilter;
       }
       if (this._state.tagFilter) targetParams.tag = this._state.tagFilter;
+      if (this._state.query) targetParams.q = this._state.query;
       
       this._syncUrl(targetParams, href);
       this._scrollToAnchor(href);
@@ -689,8 +668,7 @@ class KitApp {
     const cleanText = rawText.replace(/[#*`_\[\]()|]/g, ' ').replace(/\s+/g, ' ');
     const lowerText = cleanText.toLowerCase();
     
-    // FIXED: Safely target the first string primitive within your search collection matrix
-    const firstWord = queryWords[0] || '';
+    const firstWord = queryWords || '';
     if (!firstWord) return '';
     
     const index = lowerText.indexOf(firstWord.toLowerCase());
@@ -727,10 +705,7 @@ class KitApp {
       .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     if (!safeWords.length) return this._escapeHtml(text);
 
-    // Escape first to lock down DOM injection parameters securely
     const escapedText = this._escapeHtml(text);
-    
-    // FIXED: Re-verify RegEx matching points handle clean alphanumeric markers against string entities safely
     const re = new RegExp(`(${safeWords.join('|')})`, 'gi');
     return escapedText.replace(re, '<mark>$1</mark>');
   }
@@ -747,7 +722,6 @@ class KitApp {
   }
 }
 
-// Global initialization call on document completion
 document.addEventListener('DOMContentLoaded', () => {
   const app = new KitApp();
   app.init();
