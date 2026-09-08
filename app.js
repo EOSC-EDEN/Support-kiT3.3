@@ -425,7 +425,7 @@ class KitApp {
       this._state.query = '';
       const { searchCounter } = this._refs;
       if (searchCounter) {
-        searchCounter.textContent = 'Skriv minst 3 tegn for å søke...';
+        searchCounter.textContent = 'Minimum 3 letters when searching...';
       }
       return;
     }
