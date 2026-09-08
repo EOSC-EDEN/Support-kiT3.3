@@ -660,15 +660,16 @@ class KitApp {
     expanded.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  _createSearchSnippet(textObj, queryWords) {
-    if (!textObj || !queryWords.length) return '';
+    _createSearchSnippet(textObj, queryWords) {
+    if (!textObj || !queryWords || !queryWords.length) return '';
     const rawText = typeof textObj === 'object' ? (textObj.text || '') : textObj;
     if (!rawText) return '';
 
     const cleanText = rawText.replace(/[#*`_\[\]()|]/g, ' ').replace(/\s+/g, ' ');
     const lowerText = cleanText.toLowerCase();
     
-    const firstWord = queryWords || '';
+    // FIKS: Hent ut det første ordet fra arrayen i stedet for hele arrayen
+    const firstWord = queryWords[0] || '';
     if (!firstWord) return '';
     
     const index = lowerText.indexOf(firstWord.toLowerCase());
@@ -683,6 +684,7 @@ class KitApp {
     
     return this._highlight(snippet, queryWords);
   }
+
 
   _getMarkdownRenderer() {
     if (this._md) return this._md;
