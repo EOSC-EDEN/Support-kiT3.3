@@ -660,29 +660,56 @@ class KitApp {
     expanded.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-    _createSearchSnippet(textObj, queryWords) {
+     _createSearchSnippet(textObj, queryWords) {
     if (!textObj || !queryWords || !queryWords.length) return '';
     const rawText = typeof textObj === 'object' ? (textObj.text || '') : textObj;
     if (!rawText) return '';
 
-    const cleanText = rawText.replace(/[#*`_\[\]()|]/g, ' ').replace(/\s+/g, ' ');
-    const lowerText = cleanText.toLowerCase();
-    
-    // FIKS: Hent ut det første ordet fra arrayen i stedet for hele arrayen
+    // 1. Finn posisjonen til søkeordet i råteksten (før vi fjerner tegn)
+    const lowerRawText = rawText.toLowerCase();
     const firstWord = queryWords[0] || '';
     if (!firstWord) return '';
     
-    const index = lowerText.indexOf(firstWord.toLowerCase());
+    const index = lowerRawText.indexOf(firstWord.toLowerCase());
     if (index === -1) return '';
 
-    const start = Math.max(0, index - 60);
-    const end = Math.min(cleanText.length, index + 100);
+    // 2. Let bakover fra søketreffet etter den nærmeste Markdown-overskriften
+    let sectionTitle = '';
+    const textBeforeMatch = rawText.slice(0, index);
+    const linesBefore = textBeforeMatch.split('\n');
+    
+    // Gå bakover linje for linje
+    for (let i = linesBefore.length - 1; i >= 0; i--) {
+      const line = linesBefore[i].trim();
+      if (line.startsWith('#')) {
+        // Fjern # tegnene og ta vare på overskriften
+        sectionTitle = line.replace(/^#+\s*/, '').trim();
+        break;
+      }
+    }
+
+    // 3. Rens teksten for Markdown-symboler til selve utdraget (slik du gjorde før)
+    const cleanText = rawText.replace(/[#*`_\[\]()|]/g, ' ').replace(/\s+/g, ' ');
+    const lowerCleanText = cleanText.toLowerCase();
+    const cleanIndex = lowerCleanText.indexOf(firstWord.toLowerCase());
+
+    const start = Math.max(0, cleanIndex - 150);
+    const end = Math.min(cleanText.length, cleanIndex + 250);
     
     let snippet = cleanText.slice(start, end).trim();
     if (start > 0) snippet = '...' + snippet;
     if (cleanText.length > end) snippet = snippet + '...';
     
-    return this._highlight(snippet, queryWords);
+    const highlightedSnippet = this._highlight(snippet, queryWords);
+
+    // 4. Hvis vi fant en overskrift, formaterer vi den pent foran utdraget
+    if (sectionTitle) {
+      // Vi bruker en egen styling for overskriften så den skiller seg ut
+      const escapedSection = this._escapeHtml(sectionTitle);
+      return `<span class="snippet-section" style="display:block; font-weight:bold; color:#1e3a8a; margin-bottom:4px; font-style:normal;">📌 ${escapedSection}</span>${highlightedSnippet}`;
+    }
+
+    return highlightedSnippet;
   }
 
 
