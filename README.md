@@ -1,4 +1,6 @@
-An early mockup of Support kit T3.3 - in the branch orphant. AI have been used in the process to create and check code for the mockup.
+Early solution presented: https://s3.eu-1.iaas.open-science-cloud.ec.europa.eu/swift/v1/mockup/index.html
+
+The code here is an early mockup of Support kit T3.3 - in the branch orphant. AI have been used in the process to create and check code for the mockup.
 
 html,js,css and json (includes also markdown-it). should run on any web server as is. 
 
