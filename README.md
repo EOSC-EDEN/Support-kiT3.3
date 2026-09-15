@@ -29,7 +29,7 @@ Within each track, the modules are sorted according to the numerical order field
 This logic is also what allows your code to automatically find the "Next Module" by looking for an article in the same track with an order + 1 value.
 
 
-## 2. Search Mode (When you TYPE in the search field).
+## Search Mode (When you TYPE in the search field).
 
 As soon as you type a word into the search field, the default mode turns off completely. The learning path/track and the order numbers are entirely ignored. Instead, results are sorted by relevance (how well the search term matches the title):
 
