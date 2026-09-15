@@ -1,25 +1,28 @@
-Early solution presented: https://s3.eu-1.iaas.open-science-cloud.ec.europa.eu/swift/v1/mockup/index.html
+**The code here is an early mockup of Support kit T3.3 - and gh pages connected to the branch orphant.** 
 
-The code here is an early mockup of Support kit T3.3 - in the branch orphant. AI have been used in the process to create and check code for the mockup.
+**AI have been used in the process to create and check code for the mockup.** 
 
-html,js,css and json (includes also markdown-it). should run on any web server as is. 
+**The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
+
 
 ### index.json is the basis for the full content. 
-encoding can be html, plain or markdown in the json text field, but only markdown is used at this point in time.
+Encoding can be html, plain or markdown in the json text field, but only markdown will be used at this point in time. 
 
-## how to contribute with content? 
-write your content in markdown (any editor can be used as of now). Copy-paste between markdown editor and editor.html provided here.
+## How to contribute with content? 
+Write your content in markdown (any editor can be used as of now). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
+(even if this is a git repo, older content files (index.json) will be renamed with dates and stored separately in the repo).  
 
 ### Using editor.html can be used to suggest changes in proper json formatting.
-The whole index.json will be loaded as defaut starting point, create your suggestion and export -  should keep the json file called index.json in a proper state.
+The whole index.json (last version) will be loaded as defaut starting point, create your suggestion and export -  this method should keep the json file called index.json in a proper state.
 
 ### Note on filtering, sorting and order:
 
 "Track" (or if you like: learning path) is the top level filtering. Tags are next level for filtering (filtered by tracks), then search. Modules are filtered by tracks, tags and search. 
 
+### Searching 
 A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area). 
 
-### 1. Default Mode (When the search field is EMPTY)
+### Default Mode (When the search field is EMPTY)
 
 Within each track, the modules are sorted according to the numerical order field (e.g., 1, 2, 3). This ensures that the course material and modules are arranged in a pedagogical sequence (e.g., Introduction to Step 1 to Step 2) - long reads are possible.
 
