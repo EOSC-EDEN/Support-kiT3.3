@@ -5,31 +5,31 @@
 **The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
 
 
-### index.json is the basis for the full content. 
+## index.json is the basis for the full content. 
 Encoding can be html, plain or markdown in the json text field, but only markdown will be used at this point in time. 
 
 ## How to contribute with content? 
 Write your content in markdown (any editor can be used as of now). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
 (even if this is a git repo, older content files (index.json) will be renamed with dates and stored separately in the repo).  
 
-### Using editor.html can be used to suggest changes in proper json formatting.
+## Using editor.html can be used to suggest changes in proper json formatting.
 The whole index.json (last version) will be loaded as defaut starting point, create your suggestion and export -  this method should keep the json file called index.json in a proper state.
 
-### Note on filtering, sorting and order:
+## Note on filtering, sorting and order:
 
 "Track" (or if you like: learning path) is the top level filtering. Tags are next level for filtering (filtered by tracks), then search. Modules are filtered by tracks, tags and search. 
 
-### Searching 
+## Searching 
 A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area). 
 
-### Default Mode (When the search field is EMPTY)
+## Default Mode (When the search field is EMPTY)
 
 Within each track, the modules are sorted according to the numerical order field (e.g., 1, 2, 3). This ensures that the course material and modules are arranged in a pedagogical sequence (e.g., Introduction to Step 1 to Step 2) - long reads are possible.
 
 This logic is also what allows your code to automatically find the "Next Module" by looking for an article in the same track with an order + 1 value.
 
 
-### 2. Search Mode (When you TYPE in the search field).
+## 2. Search Mode (When you TYPE in the search field).
 
 As soon as you type a word into the search field, the default mode turns off completely. The learning path/track and the order numbers are entirely ignored. Instead, results are sorted by relevance (how well the search term matches the title):
 
