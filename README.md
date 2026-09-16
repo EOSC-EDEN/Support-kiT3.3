@@ -9,7 +9,7 @@
 Encoding can be html, plain or markdown in the json text field, but only markdown will be used at this point in time. 
 
 ## How to contribute with content? 
-Write your content in markdown (any editor can be used as of now). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
+Write your content in markdown (any editor can be used as of now, but keep it simple in the beginning). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
 (even if this is a git repo, older content files (index.json) will be renamed with dates and stored separately in the repo).  
 
 ## Using editor.html can be used to suggest changes in proper json formatting.
