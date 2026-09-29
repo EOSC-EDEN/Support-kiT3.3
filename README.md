@@ -15,9 +15,9 @@ Write your content in markdown (any editor can be used as of now, but keep it si
 ## Using editor.html can be used to suggest changes in proper json formatting.
 The whole index.json (last version) will be loaded as defaut starting point, create your suggestion and export -  this method should keep the json file called index.json in a proper state.
 
-## Note on filtering, sorting and order:
+## Note on filtering:
 
-"Track" (or if you like: learning path) is the top level filtering. If you start a full text search will all modules included, then you can filter down (or limit) the hits by choosing learning path. Same functionality if first searching, then selecting tags (not recommended - too limiting in most cases).   
+"Track" (or if you like: learning path) is the top level filtering. Next level, under paths, is tags.  
 
 ## Searching 
 A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area). 
