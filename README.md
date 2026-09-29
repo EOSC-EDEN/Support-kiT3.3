@@ -1,1 +1,56 @@
-Temp readme: 15th sept - For now, the branch orphant is used for a "mockup" that can be presented early in the task. Github pages are set to orphan branch. This main branch will be used in the future, for the next steps of developments.More information in the branch orphan.  
+**The code here is an early mockup of Support kit T3.3 - as of now gh pages are connected to the branch orphant.** 
+
+**AI have been used in the process to create and check code for the mockup.** 
+
+**The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
+
+
+## index.json is the basis for the full content. 
+Encoding can be html, plain or markdown in the json text field, but only markdown will be used at this point in time. 
+
+## How to contribute with content? 
+Write your content in markdown (any editor can be used as of now, but keep it simple in the beginning). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
+(even if this is a git repo, older content files (index.json) will be renamed with dates and stored separately in the repo).  
+
+## Using editor.html can be used to suggest changes in proper json formatting.
+The whole index.json (last version) will be loaded as defaut starting point, create your suggestion and export -  this method should keep the json file called index.json in a proper state.
+
+## Note on filtering:
+
+"Track" (or if you like: learning path) is the top level filtering. Next level, under paths, is tags.  
+
+## Searching 
+A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area). 
+
+## Search Mode (When you TYPE in the search field).
+
+Results are sorted by relevance, and to what degree the search term matches the title etc.:
+
+The code assigns points (scoring) based on where your search term appears:3 points (Highest relevance): If the article title matches the exact word you searched for. 2 points (Medium relevance): If the article title starts with the word you searched for. 1 point (Lowest relevance): If the word is found anywhere inside the title text, inside the abstract (summary), or among the tags.In case of a tie (Equal score):If two articles get the exact same score (for example, if both contain the search term right in the middle of their abstracts), the code falls back on sorting the titles alphabetically to determine which one comes first.
+
+## The use of Markdown-it is in this solution based on their provided MIT License for the markdown-it javascript, as follows:
+
+https://github.com/markdown-it/markdown-it?tab=MIT-1-ov-file 
+
+"Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin.
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE."
