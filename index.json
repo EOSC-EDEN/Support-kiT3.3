@@ -261,9 +261,9 @@
     "track": "tools",
     "discipline": "Tools Module #1",
     "order": "1",
-    "name": "Tools for progress",
-    "description": "Morbi convallis auctor augue quis pharetra. Vestibulum convallis ligula sed fringilla facilisis. Cras dignissim condimentum mauris, et pellentesque tortor pharetra ac. Morbi dignissim facilisis elit id consequat. Donec sollicitudin dictum arcu eu euismod. Curabitur in odio ac mi semper tincidunt. Morbi venenatis, elit id rhoncus maximus, enim lorem tristique nulla, vitae tristique ante libero non nibh. Vivamus sed euismod risus.",
-    "keywords": [
+    "name": "Tools overview",
+    "description": "Modules under the track called Tools will present usefull tools, both for researchers, RDM trainers, and especially: repository staff.",
+      "keywords": [
       "tooling",
       "feedback",
       "metrics"
