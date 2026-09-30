@@ -136,10 +136,10 @@
     {
     "@id": "tooling-tools",
     "track": "tools",
-    "discipline": "Tools Module #1",
+    "discipline": "Z Tools",
     "order": "1",
     "name": "Tools overview",
-    "description": "Modules under the track called Tools will present usefull tools, both for researchers, RDM trainers, and especially: repository staff.",
+    "description": "Modules under the track called Tools will present usefull tools, both for researchers, RDM trainers, and especially: repository & archive managers.",
       "keywords": [
       "tooling",
       "feedback",
