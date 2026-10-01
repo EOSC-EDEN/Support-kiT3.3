@@ -40,7 +40,7 @@
   "description": "To facilitate reuse of data, we need to first make data discoverable. Data discoverability involves assigning identifiers and metadata to a dataset to allow users to query, find, interpret, and reuse it. Choosing an appropriate repository, improving file structure, providing documentation, and producing machine-discoverable metadata, are all part of this process. Making data discoverable also contributes to making research more transparent and reproducible.",
   "keywords": [
     "pid",
-    "TDRs",
+    "TDR",
     "machine-actionable"
   ],
   "encodingFormat": "text/markdown",
@@ -56,7 +56,7 @@
     "keywords": [
     "data review",
     "data quality",
-    "deposits"
+    "deposit"
   ],
    "encodingFormat": "text/markdown",
    "text": "#### Sections\n[Considerations](#considerations) | [Recommendations](#recommendations) | [More information](#more-information) | [Authors](#authors)\n\n### Considerations\n\nKey aspects to consider include:\n \n- File integrity and readability (e.g. files can be opened and read without errors or corruption, checksums)\n- File formats and sustainability (e.g. avoid obsolete, uncommon, proprietary formats)\n- File structure and organisation (e.g. file and directory names are consistent and meaningful)\n- Completeness of the deposited data (e.g. check that files required to understand and reuse the dataset are actually present)\n- Internal consistency (e.g. inconsistent units of measurement, different coding schemes for categorical variables)\n- Data structure and machine readability (e.g. consistent columns, consistent data types, valid syntax, references and identifiers resolve correctly)\n- Character encoding and language (e.g. encoding is known and appropriate, preferably UTF-8 where suitable)\n- Dates, numbers, units, and missing values\n- Metadata-to-data consistency\n- Versioning and provenance\n- Compression and packaging (e.g. archives can be extracted)\n- Technical documentation and dependencies (e.g. required software, libraries or packages)\n- Automated validation and quality checks (e.g. file format identification, checksums/fixity, virus/malware scanning)\n- Preservation risks (e.g. encrypted or password-protected files, unusual hardware/software dependencies, lossy compression)\n\n\n### Recommendations\n\n- Perform legal clearance and technical checks to make and keep data accessible.\n- Data integrity should be ensured at all stages of its life.\n- Data should be checked for technical defects and viruses prior to ingest.\n- Data should be stored in well-supported and preferably non-proprietary file formats.\n- Data should be well documented (e.g. clear explanations, standardized metadata, readme files).\n- Datasets should be assigned unique identifiers.\n- Updates to data or new versions should be clearly and consistently identified.\n\n\n### More information\n\nThis module builds upon the following supporting frameworks:\n\n- EOSC EDEN T1.2, Lindlar, M., Caron, B., Benauer, M., Kylander, J., Dekeyser, K., Addis, M., Levlin, M., Laukkanen, M., Lehtonen, J., Burger, F., Koho, T., Schwab, F., Molloy, L., & Zhang, F. (2025). EOSC EDEN M1.1 Report on Identification of Core Preservation Processes. Zenodo. https://doi.org/10.5281/zenodo.16992452 CPPs 001; 002; 003; 004; 007; 010; 012; 020; 023; 024; 025; 026; 027; 030\n\n- CoreTrustSeal Standards and Certification Board. (2025). CoreTrustSeal Requirements 2026-2028. Zenodo. https://doi.org/10.5281/zenodo.17660463  R01; R03; R04\n\n\n### Authors\n\nAnna-Lena Flügel (https://orcid.org/0000-0001-8218-9609)\n\n[Go to top](#)"
@@ -69,7 +69,7 @@
   "name": "Preparing deposits - file formats and technical data quality",
   "description": "Considering data preservation and reusability during preparation helps ensure that the dataset remains accessible, understandable, and usable beyond the original research project. Good preparation—such as using sustainable formats, documenting data structures, and recording processing steps—reduces the risk of data becoming inaccessible, ambiguous, or unusable over time. It also makes it easier for other researchers to verify, reproduce, and build on the research.",
   "keywords": [
-    "depositing",
+    "deposit",
     "planning",
     "preperations"
   ],
