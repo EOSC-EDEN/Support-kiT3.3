@@ -1,0 +1,17 @@
+{
+  "name": "2markdown",
+  "version": "0.1.0",
+  "description": "A lightweight static learning platform for markdown-based modules",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-index.mjs",
+    "validate": "node scripts/validate.mjs",
+    "dev": "npm run build && python3 -m http.server 8000",
+    "precommit": "npm run build && npm run validate"
+  },
+  "keywords": [
+    "learning",
+    "markdown",
+    "static-site"
+  ]
+}
