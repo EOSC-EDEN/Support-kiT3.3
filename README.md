@@ -4,7 +4,7 @@ Github pages show (for now) the content under the branch earlyDemoVersion, not t
 
 **AI have been used in the process to create and check code for the mockup.** 
 
-**The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
+**The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it).
 
 ## markdown files in the folder "articles" will end up in index.json, that again is the basis for the full content in gh pages.
 
