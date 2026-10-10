@@ -2,8 +2,8 @@
 track: ztools
 discipline: Trainer #2
 order: 2
-name: Birthdays are good
-description: Welcome! Please read this birthday module when relevant
+name: Standards are good
+description: Welcome! Please read this standard module when relevant, this is just example content
 keywords:
   - navigating
   - module template
