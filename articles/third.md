@@ -1,12 +1,13 @@
 ---
-track: ztools
-discipline: Trainer #2
-order: 2
+track: managers
+discipline: Repository & Archive Managers #1
+order: 1
 name: Standards are good
-description: Welcome! Please read this standard module when relevant, this is just example content
+description: To facilitate reuse of data, we need to first make data discoverable. Data discoverability involves assigning identifiers and metadata to a dataset to allow users to query, find, interpret, and reuse it. Choosing an appropriate repository, improving file structure, providing documentation, and producing machine-discoverable metadata, are all part of this process. Making data discoverable also contributes to making research more transparent and reproducible.
 keywords:
-  - navigating
-  - module template
+  - pid
+  - TDR
+  - machine-actionable
 ---
 
 #### This text show the very simple template for structure 
