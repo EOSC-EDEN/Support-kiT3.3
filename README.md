@@ -1,4 +1,4 @@
-**The code here is an early mockup of Support kit T3.3 - as of now gh pages are connected to the branch orphant.** 
+**The code here is an early mockup of Support kit T3.3 - and gh pages connected to the branch orphant.** 
 
 **AI have been used in the process to create and check code for the mockup.** 
 
@@ -54,3 +54,5 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE."
+
+
