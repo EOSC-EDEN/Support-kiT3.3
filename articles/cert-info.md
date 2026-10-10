@@ -1,12 +1,16 @@
 ---
-track: trainers
-discipline: Trainer #1
-order: 1
-name: Certification information to come
-description: Welcome! Please read this module when relevant, and this is just demo content
+track: info
+discipline: Information #2
+order: 2
+name: Repository Certification
+description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
 keywords:
-  - navigating
-  - module template
+  - trustworthy
+  - TDR
+  - Core Trust Seal
+  - Nestor Seal
+  - ISO16363
+  - certification
 ---
 
 #### This text show the very simple template for structure 
