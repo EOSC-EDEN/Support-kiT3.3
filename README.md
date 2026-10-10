@@ -1,26 +1,21 @@
-**The code here is an early mockup of Support kit T3.3 - and gh pages connected to the branch orphant.** 
+**This code is based on going some steps further in developments from the early mockup of Support kit T3.3 - and gh pages connected to it.** 
 
 **AI have been used in the process to create and check code for the mockup.** 
 
 **The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
 
 
-## index.json is the basis for the full content. 
-Encoding can be html, plain or markdown in the json text field, but only markdown will be used at this point in time. 
+## markdown files in the folder "articles" will end up in index.json, that again is the basis for the full content in gh pages.
 
 ## How to contribute with content? 
-Write your content in markdown (any editor can be used as of now, but keep it simple in the beginning). Then copy-paste between markdown editor and editor.html provided here, then export full json and upload to this repository. 
-(even if this is a git repo, older content files (index.json) will be renamed with dates and stored separately in the repo).  
-
-## Using editor.html can be used to suggest changes in proper json formatting.
-The whole index.json (last version) will be loaded as defaut starting point, create your suggestion and export -  this method should keep the json file called index.json in a proper state.
+Write your content in markdown, based on template/ other markdown files in the folder "articles". 
 
 ## Note on filtering:
 
-"Track" (or if you like: learning path) is the top level filtering. Next level, under paths, is tags.  
+"Track" (or if you like: learning path) is the top level filtering. Next level, under paths, is tags (/keywords).  
 
 ## Searching 
-A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area). 
+A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area, and marked in module content when a module is open). 
 
 ## Search Mode (When you TYPE in the search field).
 
