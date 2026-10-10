@@ -9,7 +9,6 @@ keywords:
   - module template
 ---
 
-
 #### This text show the very simple template for structure 
 [Considerations](#conciderations) | [Recommandations](#recommandations) | [More information](#more-information) | [Authors](#authors)
 
