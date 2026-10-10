@@ -3,7 +3,7 @@ track: trainers
 discipline: Trainer #1
 order: 1
 name: Certification is good
-description: Welcome! Please read this module when relevant
+description: Welcome! Please read this module when relevant, and this is just demo content
 keywords:
   - navigating
   - module template
