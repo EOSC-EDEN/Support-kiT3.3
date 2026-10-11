@@ -134,9 +134,9 @@
             border: 1px solid #e2e8f0;
             flex-shrink: 0;
         }
-        .meta-section .meta-group { display: flex; flex-direction: column; }
-        .meta-section .meta-group.span-2 { grid-column: span 2; }
-        .meta-section .meta-group.span-4 { grid-column: span 4; }
+        .meta-group { display: flex; flex-direction: column; }
+        .meta-group.span-2 { grid-column: span 2; }
+        .meta-group.span-4 { grid-column: span 4; }
         
         label {
             font-weight: 600;
@@ -217,7 +217,7 @@
             <button class="btn" style="background-color: #4a5568;" onclick="createNewModule()">+ New Module</button>
             <label>Modules in File</label>
             <div id="moduleList" class="module-list">
-                <div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">No file loaded yet...</div>
+                <div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">Loading default index.json...</div>
             </div>
         </div>
 
@@ -281,9 +281,39 @@
     let modulesData = [];
     let currentModuleIndex = -1;
 
-    // Last inn JSON-fil
+    // Last inn index.json automatisk ved oppstart (Slik som i den opprinnelige løsningen)
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('index.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Fant ikke index.json i mappen eller kjører ikke fra en lokal webserver.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                modulesData = Array.isArray(data) ? data : [];
+                if (modulesData.length > 0) {
+                    currentModuleIndex = 0;
+                    renderModuleList();
+                    loadModuleToEditor(0);
+                } else {
+                    showFallbackMessage("index.json ble funnet, men listen er tom.");
+                }
+            })
+            .catch(error => {
+                console.warn("Automatisk innlasting stoppet:", error.message);
+                showFallbackMessage("Kunne ikke auto-laste index.json. Klikk 'Load JSON File' over.");
+            });
+    });
+
+    function showFallbackMessage(msg) {
+        document.getElementById('moduleList').innerHTML = 
+            `<div style="color: #a0aec0; font-size: 0.85rem; padding: 10px; line-height: 1.4;">\${msg}</div>`;
+    }
+
+    // Manuelt valg av JSON-fil via knapp
     document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
+        const file = e.target.files;
         if (!file) return;
 
         const reader = new FileReader();
@@ -319,10 +349,10 @@
 
         modulesData.forEach((mod, index) => {
             const item = document.createElement('div');
-            item.className = `module-item ${index === currentModuleIndex ? 'active' : ''}`;
+            item.className = `module-item \${index === currentModuleIndex ? 'active' : ''}`;
             
             const titleSpan = document.createElement('span');
-            titleSpan.textContent = mod.name || mod["@id"] || `Unnamed Module (${index + 1})`;
+            titleSpan.textContent = mod.name || mod["@id"] || `Unnamed Module (\${index + 1})`;
             titleSpan.style.overflow = "hidden";
             titleSpan.style.textOverflow = "ellipsis";
             item.appendChild(titleSpan);
@@ -340,7 +370,7 @@
             delBtn.title = 'Slett modul';
             delBtn.onclick = (e) => {
                 e.stopPropagation();
-                if (confirm(`Vil du slette modulen "${titleSpan.textContent}"?`)) {
+                if (confirm(`Vil du slette modulen "\${titleSpan.textContent}"?`)) {
                     deleteModule(index);
                 }
             };
@@ -412,7 +442,7 @@
         // Oppdater tittel i sidepanelet uten å miste fokus
         const activeItem = document.querySelector('.module-list .module-item.active span');
         if (activeItem) {
-            activeItem.textContent = mod.name || mod["@id"] || `Unnamed Module (${currentModuleIndex + 1})`;
+            activeItem.textContent = mod.name || mod["@id"] || `Unnamed Module (\${currentModuleIndex + 1})`;
         }
 
         updateJsonPreview(mod);
@@ -438,7 +468,6 @@
         renderModuleList();
         loadModuleToEditor(currentModuleIndex);
         
-        // Scroll ned til bunnen av listen
         const listContainer = document.getElementById('moduleList');
         listContainer.scrollTop = listContainer.scrollHeight;
     }
@@ -477,7 +506,7 @@
 
     function syntaxHighlight(json) {
         json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\\"])*"(\s*:)?|(true|false|null)|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+        return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\"])*"(\s*:)?|(true|false|null)|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
             let cls = 'json-number';
             if (/^"/.test(match)) {
                 if (/:$/.test(match)) {
