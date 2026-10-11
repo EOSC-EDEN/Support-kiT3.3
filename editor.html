@@ -14,6 +14,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            height: 100vh;
         }
         .container {
             max-width: 1800px;
@@ -27,6 +28,7 @@
             flex-direction: column;
             flex-grow: 1;
             box-sizing: border-box;
+            overflow: hidden;
         }
         .header-bar {
             display: flex;
@@ -35,6 +37,7 @@
             margin-bottom: 15px;
             padding-bottom: 15px;
             border-bottom: 2px solid #edf2f7;
+            flex-shrink: 0;
         }
         h2 { margin: 0; font-size: 1.4rem; color: #1a202c; }
         
@@ -55,12 +58,12 @@
         .btn-danger { background-color: #e53e3e; }
         .btn-danger:hover { background-color: #c53030; }
         
-        /* Layout med modulvelger i sidepanel */
         .main-layout {
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 20px;
             flex-grow: 1;
+            overflow: hidden;
         }
         
         .sidebar {
@@ -71,6 +74,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            overflow: hidden;
         }
         .module-list {
             flex-grow: 1;
@@ -90,6 +94,9 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .module-item:hover { background: #edf2f7; }
         .module-item.active {
@@ -98,11 +105,22 @@
             color: #2b6cb0;
             font-weight: 600;
         }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 0 5px;
+        }
+        .delete-btn:hover { color: #c53030; }
         
         .editor-area {
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            height: 100%;
         }
         
         .meta-section {
@@ -114,10 +132,11 @@
             border-radius: 6px;
             margin-bottom: 15px;
             border: 1px solid #e2e8f0;
+            flex-shrink: 0;
         }
-        .meta-group { display: flex; flex-direction: column; }
-        .meta-group.span-2 { grid-column: span 2; }
-        .meta-group.span-4 { grid-column: span 4; }
+        .meta-section .meta-group { display: flex; flex-direction: column; }
+        .meta-section .meta-group.span-2 { grid-column: span 2; }
+        .meta-section .meta-group.span-4 { grid-column: span 4; }
         
         label {
             font-weight: 600;
@@ -134,15 +153,15 @@
             font-size: 0.9rem;
         }
         
-        /* Split Screen for Tekst vs JSON-streng */
         .workspace {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             flex-grow: 1;
-            min-height: 2000px;
+            overflow: hidden;
+            margin-bottom: 10px;
         }
-        .pane { display: flex; flex-direction: column; height: 100%; }
+        .pane { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
         
         textarea.md-input {
             width: 100%;
@@ -156,9 +175,9 @@
             resize: none;
             box-sizing: border-box;
             background-color: #fcfcfc;
+            overflow-y: auto;
         }
         
-        /* Ren JSON-streng pre-visning */
         pre.json-preview {
             margin: 0;
             flex-grow: 1;
@@ -198,7 +217,6 @@
             <button class="btn" style="background-color: #4a5568;" onclick="createNewModule()">+ New Module</button>
             <label>Modules in File</label>
             <div id="moduleList" class="module-list">
-                <!-- Moduler dukker opp her dynamisk -->
                 <div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">No file loaded yet...</div>
             </div>
         </div>
@@ -220,7 +238,7 @@
                 </div>
                 <div class="meta-group">
                     <label for="order">Order</label>
-                    <input type="text" id="order" oninput="syncCurrentData()">
+                    <input type="number" id="order" oninput="syncCurrentData()">
                 </div>
                 <div class="meta-group span-2">
                     <label for="name">Name / Title</label>
@@ -230,17 +248,25 @@
                     <label for="keywords">Keywords (comma separated)</label>
                     <input type="text" id="keywords" oninput="syncCurrentData()">
                 </div>
+                <div class="meta-group span-2">
+                    <label for="textFile">File Path (text)</label>
+                    <input type="text" id="textFile" oninput="syncCurrentData()" placeholder="articles/filename.md">
+                </div>
+                <div class="meta-group span-2">
+                    <label for="encodingFormat">Encoding Format</label>
+                    <input type="text" id="encodingFormat" oninput="syncCurrentData()" placeholder="text/markdown">
+                </div>
                 <div class="meta-group span-4">
                     <label for="description">Short Description</label>
                     <textarea id="description" rows="2" oninput="syncCurrentData()"></textarea>
                 </div>
             </div>
 
-            <!-- Rendyrket visning: Tekst vs Eksportert JSON-streng -->
+            <!-- Workspace for Markdown og JSON Forhåndsvisning -->
             <div class="workspace">
                 <div class="pane">
-                    <label>Markdown Editor</label>
-                    <textarea id="text" class="md-input" placeholder="Type your markdown here..." oninput="syncCurrentData()"></textarea>
+                    <label>Markdown Content</label>
+                    <textarea id="markdownContent" class="md-input" oninput="syncCurrentData()" placeholder="Write your markdown structure here..."></textarea>
                 </div>
                 <div class="pane">
                     <label>Export Preview (Current object as JSON string)</label>
@@ -250,203 +276,208 @@
         </div>
     </div>
 </div>
+
 <script>
-    // Holder på listen med alle moduler fra filen
-    let allModules = [];
-    let activeIndex = -1;
+    let modulesData = [];
+    let currentModuleIndex = -1;
 
-    // Helper: safe extract text if article.text is object
-    function extractTextField(data) {
-        if (!data) return '';
-        if (typeof data.text === 'object' && data.text !== null) {
-            return data.text.text || '';
-        }
-        return data.text || data.body || data.markdownContent || '';
-    }
-
-    // --- Kjøres automatisk når siden åpnes ---
-    window.addEventListener('DOMContentLoaded', () => {
-        // Henter index.json automatisk fra samme område på webserveren
-        fetch('index.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Fant ikke index.json (Status: ${response.status})`);
-                }
-                return response.json();
-            })
-            .then(parsed => {
-                // Støtter både objekt med @graph, ren array [], eller enkeltobjekt {}
-                if (parsed && parsed['@graph'] && Array.isArray(parsed['@graph'])) {
-                    allModules = parsed['@graph'];
-                } else if (Array.isArray(parsed)) {
-                    allModules = parsed;
-                } else {
-                    allModules = [parsed];
-                }
-
-                if (allModules.length > 0) {
-                    activeIndex = 0;
-                    renderModuleList();
-                    loadModuleToForm(activeIndex);
-                }
-            })
-            .catch(err => {
-                console.warn("Automatisk innlasting feilet. Venter på manuell fil.", err);
-                // Viser en hjelpetekst i sidepanelet hvis filen mangler
-                document.getElementById('moduleList').innerHTML =
-                    `<div style="color: #e53e3e; font-size: 0.85rem; padding: 10px;">
-                        Kunne ikke laste index.json automatisk. Bruk knappen over for å åpne manuelt.
-                     </div>`;
-            });
-    });
-
-    // --- Filbehandling: Manuell innlasting (Fallback) ---
+    // Last inn JSON-fil
     document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files && e.target.files[0];
+        const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = function(evt) {
             try {
                 const parsed = JSON.parse(evt.target.result);
-                if (parsed && parsed['@graph'] && Array.isArray(parsed['@graph'])) {
-                    allModules = parsed['@graph'];
-                } else if (Array.isArray(parsed)) {
-                    allModules = parsed;
-                } else {
-                    allModules = [parsed];
-                }
-
-                if (allModules.length > 0) {
-                    activeIndex = 0;
+                modulesData = Array.isArray(parsed) ? parsed : [];
+                
+                if (modulesData.length > 0) {
+                    currentModuleIndex = 0;
                     renderModuleList();
-                    loadModuleToForm(activeIndex);
+                    loadModuleToEditor(0);
+                } else {
+                    alert("JSON-filen er tom eller ikke strukturert som en liste.");
                 }
             } catch (err) {
-                alert('Feil under parsing av JSON. Sjekk at filen har riktig struktur.');
+                alert("Kunne ikke lese JSON-filen. Sjekk formatet.");
+                console.error(err);
             }
         };
         reader.readAsText(file);
     });
 
-    // --- Bygg opp listen i sidepanelet ---
+    // Vis listen over moduler i sidepanelet
     function renderModuleList() {
         const listContainer = document.getElementById('moduleList');
         listContainer.innerHTML = '';
 
-        if (!allModules.length) {
-            listContainer.innerHTML = `<div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">Ingen moduler funnet.</div>`;
+        if (modulesData.length === 0) {
+            listContainer.innerHTML = '<div style="color: #a0aec0; font-size: 0.85rem; padding: 10px;">No modules...</div>';
             return;
         }
 
-        allModules.forEach((mod, index) => {
-            const div = document.createElement('div');
-            div.className = `module-item ${index === activeIndex ? 'active' : ''}`;
-            const displayId = mod['@id'] || mod.id || '';
-            div.innerText = mod.name || displayId || `Uten navn (${index + 1})`;
-            div.onclick = () => {
-                activeIndex = index;
+        modulesData.forEach((mod, index) => {
+            const item = document.createElement('div');
+            item.className = `module-item ${index === currentModuleIndex ? 'active' : ''}`;
+            
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = mod.name || mod["@id"] || `Unnamed Module (${index + 1})`;
+            titleSpan.style.overflow = "hidden";
+            titleSpan.style.textOverflow = "ellipsis";
+            item.appendChild(titleSpan);
+
+            item.addEventListener('click', (e) => {
+                if (e.target.className === 'delete-btn') return;
+                currentModuleIndex = index;
                 renderModuleList();
-                loadModuleToForm(activeIndex);
+                loadModuleToEditor(index);
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.textContent = '×';
+            delBtn.title = 'Slett modul';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm(`Vil du slette modulen "${titleSpan.textContent}"?`)) {
+                    deleteModule(index);
+                }
             };
-            listContainer.appendChild(div);
+            item.appendChild(delBtn);
+
+            listContainer.appendChild(item);
         });
     }
 
-    // --- Last valgt modul inn i feltene ---
-    function loadModuleToForm(index) {
-        if (index < 0 || index >= allModules.length) return;
-        const data = allModules[index];
-
-        document.getElementById('id').value = data['@id'] || data.id || '';
-        document.getElementById('track').value = data.track || '';
-        document.getElementById('discipline').value = data.discipline || '';
-        document.getElementById('order').value = data.order || '';
-        document.getElementById('name').value = data.name || '';
-        document.getElementById('keywords').value = (data.keywords && Array.isArray(data.keywords)) ? data.keywords.join(', ') : (data.tags ? data.tags.join(', ') : '');
-        document.getElementById('description').value = data.description || '';
-        document.getElementById('text').value = extractTextField(data);
-
-        updateStringPreview();
-    }
-
-    // --- Synkroniser endringer live tilbake til listen i minnet ---
-    function syncCurrentData() {
-        if (activeIndex < 0) return;
-
-        const idValue = document.getElementById('id').value.trim();
-        const trackValue = document.getElementById('track').value.trim();
-        const disciplineValue = document.getElementById('discipline').value.trim();
-        const orderValue = document.getElementById('order').value.trim();
-        const nameValue = document.getElementById('name').value.trim();
-        const descriptionValue = document.getElementById('description').value.trim();
-        const keywordsValue = document.getElementById('keywords').value.split(',').map(k => k.trim()).filter(k => k);
-        const textValue = document.getElementById('text').value;
-
-        // write back using '@id' key and include encodingFormat by default
-        const obj = {
-            "@id": idValue || undefined,
-            track: trackValue || undefined,
-            discipline: disciplineValue || undefined,
-            order: orderValue || undefined,
-            name: nameValue || undefined,
-            description: descriptionValue || undefined,
-            keywords: keywordsValue.length ? keywordsValue : undefined,
-            encodingFormat: "text/markdown",
-            text: textValue || undefined
-        };
-
-        // Remove undefined keys to keep output tidy
-        const cleaned = {};
-        Object.keys(obj).forEach(k => {
-            if (obj[k] !== undefined && obj[k] !== null && !(Array.isArray(obj[k]) && obj[k].length === 0) && String(obj[k]) !== '') {
-                cleaned[k] = obj[k];
-            }
-        });
-
-        allModules[activeIndex] = cleaned;
-
-        const items = document.querySelectorAll('.module-item');
-        if (items[activeIndex]) {
-            const displayId = cleaned['@id'] || cleaned.id || '';
-            items[activeIndex].innerText = cleaned.name || displayId || `Uten navn`;
-        }
-
-        updateStringPreview();
-    }
-
-    // --- Opprett en helt ny tom modul ---
-    function createNewModule() {
-        const baseId = `ny-modul-${allModules.length + 1}`;
-        const newMod = {
-            "@id": baseId,
-            "track": "",
-            "order": "",
-            "name": "Ny modul",
-            "description": "",
-            "discipline": "",
-            "keywords": [],
-            "encodingFormat": "text/markdown",
-            "text": ""
-        };
-        allModules.push(newMod);
-        activeIndex = allModules.length - 1;
-        renderModuleList();
-        loadModuleToForm(activeIndex);
-    }
-
-    // --- Fargelagt forhåndsvisning av JSON-strengen med \n ---
-    function updateStringPreview() {
-        if (activeIndex < 0) {
-            document.getElementById('jsonPreview').innerHTML = '';
+    // Last inn valgt modul i feltene
+    function loadModuleToEditor(index) {
+        if (index < 0 || index >= modulesData.length) {
+            clearEditorFields();
             return;
         }
 
-        const currentObj = allModules[activeIndex];
-        const jsonStr = JSON.stringify(currentObj, null, 2);
+        const mod = modulesData[index];
+        document.getElementById('id').value = mod["@id"] || '';
+        document.getElementById('track').value = mod.track || '';
+        document.getElementById('discipline').value = mod.discipline || '';
+        document.getElementById('order').value = mod.order !== undefined ? mod.order : '';
+        document.getElementById('name').value = mod.name || '';
+        document.getElementById('description').value = mod.description || '';
+        document.getElementById('textFile').value = mod.text || '';
+        document.getElementById('encodingFormat').value = mod.encodingFormat || 'text/markdown';
+        
+        // Konverter keywords-array til kommadelt streng
+        document.getElementById('keywords').value = Array.isArray(mod.keywords) ? mod.keywords.join(', ') : '';
+        
+        // Hent markdownContent
+        document.getElementById('markdownContent').value = mod.markdownContent || '';
 
-        const safeStr = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const highlighted = safeStr.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        updateJsonPreview(mod);
+    }
+
+    // Tøm editoren hvis listen er tom
+    function clearEditorFields() {
+        ['id', 'track', 'discipline', 'order', 'name', 'keywords', 'description', 'textFile', 'encodingFormat', 'markdownContent'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('jsonPreview').innerHTML = '';
+    }
+
+    // Synkroniser endringer fra skjemafeltene til det aktive datalaget
+    function syncCurrentData() {
+        if (currentModuleIndex < 0 || currentModuleIndex >= modulesData.length) return;
+
+        const mod = modulesData[currentModuleIndex];
+        
+        mod["@id"] = document.getElementById('id').value;
+        mod.track = document.getElementById('track').value;
+        mod.discipline = document.getElementById('discipline').value;
+        
+        const orderVal = document.getElementById('order').value;
+        mod.order = orderVal !== '' ? Number(orderVal) : 0;
+        
+        mod.name = document.getElementById('name').value;
+        mod.description = document.getElementById('description').value;
+        mod.text = document.getElementById('textFile').value;
+        mod.encodingFormat = document.getElementById('encodingFormat').value;
+
+        // Splitt opp keywords-strengen til en ekte JSON-array
+        const kwValue = document.getElementById('keywords').value;
+        mod.keywords = kwValue ? kwValue.split(',').map(s => s.trim()).filter(s => s.length > 0) : [];
+
+        // Markdown innholdet
+        mod.markdownContent = document.getElementById('markdownContent').value;
+
+        // Oppdater tittel i sidepanelet uten å miste fokus
+        const activeItem = document.querySelector('.module-list .module-item.active span');
+        if (activeItem) {
+            activeItem.textContent = mod.name || mod["@id"] || `Unnamed Module (${currentModuleIndex + 1})`;
+        }
+
+        updateJsonPreview(mod);
+    }
+
+    // Opprett ny tom modul i listen
+    function createNewModule() {
+        const newMod = {
+            "@id": "new-module-" + Date.now(),
+            "track": "",
+            "discipline": "",
+            "order": modulesData.length + 1,
+            "name": "New Module",
+            "description": "",
+            "keywords": [],
+            "text": "articles/new-module.md",
+            "markdownContent": "### Considerations\n\n### Recommendations",
+            "encodingFormat": "text/markdown"
+        };
+        
+        modulesData.push(newMod);
+        currentModuleIndex = modulesData.length - 1;
+        renderModuleList();
+        loadModuleToEditor(currentModuleIndex);
+        
+        // Scroll ned til bunnen av listen
+        const listContainer = document.getElementById('moduleList');
+        listContainer.scrollTop = listContainer.scrollHeight;
+    }
+
+    // Slett modul
+    function deleteModule(index) {
+        modulesData.splice(index, 1);
+        if (currentModuleIndex >= modulesData.length) {
+            currentModuleIndex = modulesData.length - 1;
+        }
+        renderModuleList();
+        loadModuleToEditor(currentModuleIndex);
+    }
+
+    // Eksporter og lagre hele JSON-filen tilbake til PC
+    function saveAllModules() {
+        if (modulesData.length === 0) {
+            alert("Det er ingen data å eksportere.");
+            return;
+        }
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(modulesData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "index.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    // Fargekodet JSON live-visning
+    function updateJsonPreview(obj) {
+        const jsonStr = JSON.stringify(obj, null, 2);
+        document.getElementById('jsonPreview').innerHTML = syntaxHighlight(jsonStr);
+    }
+
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\\"])*"(\s*:)?|(true|false|null)|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
             let cls = 'json-number';
             if (/^"/.test(match)) {
                 if (/:$/.test(match)) {
@@ -459,29 +490,8 @@
             }
             return '<span class="' + cls + '">' + match + '</span>';
         });
-
-        document.getElementById('jsonPreview').innerHTML = highlighted;
-    }
-
-    // --- Lagre og eksporter HELE filen (en array av moduler) ---
-    function saveAllModules() {
-        if (allModules.length === 0) {
-            alert('Ingen data å eksportere.');
-            return;
-        }
-
-        // If original source was a JSON-LD object with @graph, you may want to export the array directly.
-        const finalString = JSON.stringify(allModules, null, 2);
-        const blob = new Blob([finalString], { type: "application/json" });
-
-        const link = document.createElement('a');
-        link.download = `index.json`; // Endret standard filnavn til index.json for enkelhetens skyld
-        link.href = URL.createObjectURL(blob);
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 </script>
+
 </body>
 </html>
