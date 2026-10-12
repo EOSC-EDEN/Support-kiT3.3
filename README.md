@@ -1,8 +1,8 @@
-Github pages show (for now) the content under the branch earlyDemoVersion, not this branch) 
+Github pages show now the content under this main branch.
 
-**This code is based on going some steps further in developments from the early mockup of Support kit T3.3 - and gh pages connected to it.** 
+**This code is based on going some steps further in developments from the presented early mockup of Support kit T3.3 - and gh pages connected to it.** 
 
-**AI have been used in the process to create and check code for the mockup.** 
+**AI was used in the process to create and check code for the early mockup.** 
 
 **The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it).
 
