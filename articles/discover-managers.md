@@ -10,22 +10,33 @@ keywords:
   - machine-actionable
 ---
 
-#### This text show the very simple template for structure 
-[Considerations](#conciderations) | [Recommandations](#recommandations) | [More information](#more-information) | [Authors](#authors)
+#### Sections:
+[Considerations](#considerations) | [Recommendations](#recommendations) | [More information](#more-information) | [Author](#author)
 
 ### Considerations
-Morbi convallis auctor augue quis pharetra. Vestibulum convallis ligula sed fringilla facilisis. Cras dignissim condimentum mauris, et pellentesque tortor pharetra ac. Morbi dignissim facilisis elit id consequat. Donec sollicitudin dictum arcu eu euismod. Curabitur in odio ac mi semper tincidunt. Morbi venenatis, elit id rhoncus maximus, enim lorem tristique nulla, vitae tristique ante libero non nibh. sed euismod risus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam in venenatis urna. Nulla facilisi. Aliquam maximus mi eu hendrerit, vitae laoreet felis egestas. Fusce sed efficitur libero, a hendrerit mauris. Maecenas orci ante, consectetur sed neque ac, luctus faucibus est. Sed eu felis mauris. Sed a libero non tellus finibus tempor vitae sit amet tortor. Donec consequat tellus sed tristique pharetra. Etiam massa lorem, tempus maximus varius at, ultricies quis diam. Sed elementum posuere, a fermentum tortor vehicula sit amet. Quisque eget ultrices metus. Cras nisl libero, placerat eget tincidunt vel, bibendum ut odio. Cras vitae viverra quam, nec luctus nibh. Vestibulum lorem nibh, egestas nec tempus ut, vehicula sed odio. Aenean placerat facilisis tortor ut mattis.
 
-### Recommandations
+- Consider where to publish your data for improved discoverability; in a discipline-specific or agnostic repository, and preferably in a TDR (Trustworthy Digital Repository)
+- Consider how you structure data into levels of datasets and files to decide what will be assigned an identifier and support meaningful discovery
+- Consider which terms you use to describe the dataset (e.g., title, abstract, metadata) to make them align with a user’s search terms
+- Consider what a user will need to know to be able to interpret and reuse a dataset, and include necessary information together with the dataset
 
-Morbi convallis auctor augue quis pharetra. Vestibulum convallis ligula sed fringilla facilisis. Cras dignissim condimentum mauris, et pellentesque tortor pharetra ac. Morbi dignissim facilisis elit id consequat. Donec sollicitudin dictum arcu eu euismod. Curabitur in odio ac mi semper tincidunt. Morbi venenatis, elit id rhoncus maximus, enim lorem tristique nulla, vitae tristique ante libero non nibh. Vivamus sed euismod risus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam in venenatis urna. Nulla facilisi. Aliquam maximus mi eu arcu hendrerit, vitae laoreet felis egestas. Fusce sed efficitur libero, a hendrerit mauris. Maecenas orci ante, consectetur sed neque ac, luctus faucibus est. Sed eu felis mauris. Sed a libero non tellus finibus tempor vitae sit amet tortor. Donec consequat tellus sed tristique pharetra. Etiam massa lorem, tempus maximus varius at, ultricies quis diam. Sed elementum posuere nunc, a fermentum tortor vehicula sit amet. Quisque eget ultrices metus. Cras nisl libero, placerat eget tincidunt vel, bibendum ut odio. Cras vitae viverra quam, nec luctus nibh. Vestibulum lorem nibh, egestas nec tempus ut, vehicula sed odio. Aenean placerat facilisis tortor ut mattis.
+### Recommendations
 
-### More information
+- Datasets should be assigned unique, persistent identifiers (PIDs) (REC-12)
+- Use PIDs on both dataset and file level (FRM-08)
+- Data should be well documented (e.g., clear explanations, metadata, readme files) (REC-05)
+- Provide machine-discoverable and interpretable metadata about both deposits (identifiers, authorship) and deposit content (quality, experimental conditions, variables measured) (FRM-07)
 
-Morbi convallis auctor augue quis pharetra. Vestibulum convallis ligula sed fringilla facilisis. Cras dignissim condimentum mauris, et pellentesque tortor pharetra ac. Morbi dignissim facilisis elit id consequat. Donec sollicitudin dictum arcu eu euismod. Curabitur in odio ac mi semper tincidunt. Morbi venenatis, elit id rhoncus maximus, enim lorem tristique nulla, vitae tristique ante libero non nibh. Vivamus sed euismod risus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam in venenatis urna. Nulla facilisi. Aliquam maximus mi eu arcu hendrerit, vitae laoreet felis egestas. Fusce sed efficitur libero, a hendrerit mauris. Maecenas orci ante, consectetur sed neque ac, luctus faucibus est. Sed eu felis mauris. Sed a libero non tellus finibus tempor vitae sit amet tortor. Donec consequat tellus sed tristique pharetra. Etiam massa lorem, tempus maximus varius at, ultricies quis diam. Sed elementum posuere nunc, a fermentum tortor vehicula sit amet. Quisque eget ultrices metus. Cras nisl libero, placerat eget tincidunt vel, bibendum ut odio. Cras vitae viverra quam, nec luctus nibh. Vestibulum lorem nibh, egestas nec tempus ut, vehicula sed odio. Aenean placerat facilisis tortor ut mattis. 
+### More Information
+This module builds upon the following supporting frameworks:
+- CoreTrustSeal_v1: R10; R12
+- Core Preservation Processes (CPPs): 005; 009; 011; 013; 016; 019; 021; 024; 028
+- EOSC-A TF FAIR Metrics and Digital Objects: FRM-07; FRM-08
+- RDMkit Elixir-Europe: Data discoverability
 
-### Authors
 
-Morbi convallis auctor augue quis pharetra. Vestibulum convallis ligula sed fringilla facilisis. Cras dignissim condimentum mauris, et pellentesque tortor pharetra ac. Morbi dignissim facilisis elit id consequat. Donec sollicitudin dictum arcu eu euismod. Curabitur in odio ac mi semper tincidunt. Morbi venenatis, elit id rhoncus maximus, enim lorem tristique nulla, vitae tristique ante libero non nibh. Vivamus sed euismod risus.Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam in venenatis urna. Nulla facilisi. Aliquam maximus mi eu arcu hendrerit, vitae laoreet felis egestas. Fusce sed efficitur libero, a hendrerit mauris. Maecenas orci ante, consectetur sed neque ac, luctus faucibus est. Sed eu felis mauris. Sed a libero non tellus finibus tempor vitae sit amet tortor. Donec consequat tellus sed tristique pharetra. Etiam massa lorem, tempus maximus varius at, ultricies quis diam. Sed elementum posuere nunc, a fermentum tortor vehicula sit amet. Quisque eget ultrices metus. Cras nisl libero, placerat eget tincidunt vel, bibendum ut odio. Cras vitae viverra quam, nec luctus nibh. Sara lorem nibh, egestas nec tempus ut, vehicula sed odio. Aenean placerat facilisis tortor ut mattis.
+### Author
+
+[Camilla Hagen Blixhavn](https://orcid.org/0000-0001-9560-1690)
 
 [Go to top](#)
