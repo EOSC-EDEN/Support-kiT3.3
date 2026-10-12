@@ -18,7 +18,7 @@
   {
     "@id": "navigating-kit",
     "track": "info",
-    "discipline": "Information #2",
+    "discipline": "Information 2",
     "order": 2,
     "name": "Repository certification",
     "description": "Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.",
@@ -66,7 +66,7 @@
   {
     "@id": "discover-managers",
     "track": "managers",
-    "discipline": "Repository & Archive Managers #1",
+    "discipline": "Repository & Archive Managers 1",
     "order": 1,
     "name": "Enabling discovery and identification",
     "description": "To facilitate reuse of data, we need to first make data discoverable. Data discoverability involves assigning identifiers and metadata to a dataset to allow users to query, find, interpret, and reuse it. Choosing an appropriate repository, improving file structure, providing documentation, and producing machine-discoverable metadata, are all part of this process. Making data discoverable also contributes to making research more transparent and reproducible.",
