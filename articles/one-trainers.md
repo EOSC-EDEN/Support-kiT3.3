@@ -1,7 +1,7 @@
 ---
 track: trainers
-discipline: RDM Trainers #1
-order: 1
+discipline: RDM Trainers 2
+order: 2
 name: Resources for RDM Trainers
 description: This module and track will present learning resources for RDM Trainers in the future.
 keywords:
