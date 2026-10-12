@@ -1,13 +1,13 @@
 ---
-track: ztools
-discipline: Tools #1
-order: 1
-name: Tools overview
-description: Modules under the track called Tools will present usefull tools, both for researchers, RDM trainers, and especially: repository & archive managers.
+track: info
+discipline: Information #2
+order: 2
+name: Repository certification
+description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
 keywords:
-  - tooling
-  - feedback
-  - metric
+  - pid
+  - TDR
+  - machine-actionable
 ---
 
 #### This module show the template for sections
