@@ -3,7 +3,7 @@ track: info
 discipline: Information 1
 order: 1
 name: Navigating the Support-kit
-description: Welcome! Please choose a learning path to get started. Choose the one that aligns best with your relevant role: researchers, repository and archive managers or RDM trainers. 
+description: Welcome! Please choose a learning path to get started. Choose the one that aligns best with your relevant role of being researchers, repository and archive managers or RDM trainers. 
 keywords:
   - pid
   - TDR
