@@ -2,12 +2,12 @@
 track: managers
 discipline: Managers 2
 order: 2
-name: Reviewing datasets
-description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
+name: Reviewing deposits - file formats and technical data quality
+description: For a data repository manager, technical data quality is primarily about whether the deposited files are technically sound, complete, usable, and suitable for long-term preservation and reuse. It is distinct from assessing whether the scientific content or methodology is correct.\nReviewing deposits includes checking file formats, readability, file and folder structures, naming conventions, encoding, data types, dates, units, missing-value conventions, internal consistency, and the consistency between data and metadata. Corrupted, incomplete, duplicate, obsolete, or technically problematic files need to be identified, and dependencies and preservation risks need to be assessed. Request clarification or remediation from depositors where necessary. Apply appropriate automated validation and document any technical quality issues and actions taken.   
 keywords:
-  - pid
-  - TDR
-  - machine-actionable
+  - data review
+  - deposit
+  - data quality
 ---
 
 #### Sections
