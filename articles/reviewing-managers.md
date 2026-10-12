@@ -2,7 +2,7 @@
 track: managers
 discipline: Managers 2
 order: 2
-name: Repository certification
+name: Reviewing datasets
 description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
 keywords:
   - pid
