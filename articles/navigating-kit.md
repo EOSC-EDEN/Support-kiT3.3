@@ -5,9 +5,9 @@ order: 1
 name: Navigating the Support-kit
 description: Welcome! Please choose a learning path to get started. Choose the one that aligns best with your relevant role of being researchers, repository and archive managers or RDM trainers. 
 keywords:
-  - pid
-  - TDR
-  - machine-actionable
+  - navigating
+  - module template
+  - guidance
 ---
 #### Sections:
 [Considerations](#considerations) | [Recommendations](#recommendations) | [More information](#more-information) | [Authors](#authors)
