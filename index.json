@@ -2,7 +2,7 @@
   {
     "@id": "cert-info",
     "track": "info",
-    "discipline": "Information #2",
+    "discipline": "Information 2",
     "order": 2,
     "name": "Repository certification",
     "description": "Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.",
@@ -82,7 +82,7 @@
   {
     "@id": "deposits-researchers",
     "track": "researchers",
-    "discipline": "Researchers #1",
+    "discipline": "Researchers 1",
     "order": 1,
     "name": "Preparing deposits - file formats and technical data quality",
     "description": "Considering data preservation and reusability during preparation helps ensure that the dataset remains accessible, understandable, and usable beyond the original research project. Good preparation—such as using sustainable formats, documenting data structures, and recording processing steps—reduces the risk of data becoming inaccessible, ambiguous, or unusable over time. It also makes it easier for other researchers to verify, reproduce, and build on the research.",
