@@ -1,7 +1,7 @@
 ---
 track: info
-discipline: Information 2
-order: 2
+discipline: Information 1
+order: 1
 name: Repository certification
 description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
 keywords:
