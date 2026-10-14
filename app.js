@@ -328,10 +328,13 @@ class KitApp {
       if (!isSearching) return true;
 
       const haystack = a.__searchText || this._buildSearchText(a);
+
       return words.every((w) => {
-        const clean = w.replace(/^\./, '');
-        const safe = haystack.replace(/\./g, '');
-        return haystack.includes(w) || safe.includes(clean);
+        const clean = w.startsWith('.') ? w : w.replace(/^\./, '');
+        const safeWord = clean.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');
+        
+        const exactWordRegex = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])\${safeWord}(?=$|[\\s,.:;?!()"\[\]{}])`, 'i');
+        return exactWordRegex.test(haystack);
       });
     });
 
@@ -339,7 +342,7 @@ class KitApp {
       const firstWordString = words[0] || '';
       const scoreOf = (title) => {
         const t = (title || '').toLowerCase().trim();
-        const c = firstWordString.replace(/^\./, '');
+        const c = firstWordString.startsWith('.') ? firstWordString : firstWordString.replace(/^\./, '');
         if (t === firstWordString || t === c) return 3;
         if (t.startsWith(firstWordString) || t.startsWith(c)) return 2;
         return 1;
@@ -392,7 +395,7 @@ class KitApp {
 
     if (this._state.activeId) {
       const expanded = articlesContainer.querySelector(
-        `[data-id="${this._state.activeId}"] .markdown-body`
+        `[data-id="\${this._state.activeId}"] .markdown-body`
       );
 
       if (expanded) {
@@ -413,13 +416,13 @@ class KitApp {
     if (!words.length) return;
 
     const safeWords = words
-      .map((w) => w.replace(/^\./, ''))
+      .map((w) => w.startsWith('.') ? w : w.replace(/^\./, ''))
       .filter(Boolean)
-      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      .map((w) => w.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&'));
 
     if (!safeWords.length) return;
 
-    const re = new RegExp(`(${safeWords.join('|')})`, 'gi');
+    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(\${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
 
     const walk = (node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -475,7 +478,7 @@ class KitApp {
     const tagsHtml = articleTags.map((tag) => {
       const activeCls = tag === this._state.tagFilter ? ' active' : '';
       const tagHtml = this._highlight(tag, words);
-      return `<button class="badge tag-click-btn${activeCls}" data-tag="${this._escapeHtml(tag)}">#${tagHtml}</button>`;
+      return `<button class="badge tag-click-btn\${activeCls}" data-tag="\${this._escapeHtml(tag)}">#\${tagHtml}</button>`;
     }).join(' ');
 
     let expandedHtml = '';
@@ -510,15 +513,15 @@ class KitApp {
 
       const nextId = next[0] ? next[0]['@id'] : null;
       const nextBtn = next[0]
-        ? `<button class="next-step-btn" data-next-id="${this._escapeHtml(nextId)}">Next modul →</button>`
+        ? `<button class="next-step-btn" data-next-id="\${this._escapeHtml(nextId)}">Next modul →</button>`
         : '';
 
       expandedHtml = `
         <div class="full-content">
-          <div class="markdown-body">${body}</div>
+          <div class="markdown-body">\${body}</div>
           <div class="learning-path-actions">
-            ${nextBtn}
-            <button class="share-btn" data-id="${currentId}">Copy share link 🔗</button>
+            \${nextBtn}
+            <button class="share-btn" data-id="\${currentId}">Copy share link 🔗</button>
             <button class="close-article-btn">Close Module ✕</button>
           </div>
         </div>
@@ -532,74 +535,74 @@ class KitApp {
       if (snippet) {
         snippetHtml = `
           <div class="search-match-snippet" style="margin-top: 10px; padding: 8px 12px; background: #f8fafc; border-left: 3px solid #bfdbfe; font-size: 0.85rem; color: #4a5568; font-style: italic;">
-            <strong>Hit in content:</strong> ${snippet}
+            <strong>Hit in content:</strong> \${snippet}
           </div>
         `;
       }
     }
 
-    const badgeClass = `badge discipline-badge${isExpanded ? ' is-open' : ''}`;
+    const badgeClass = `badge discipline-badge\${isExpanded ? ' is-open' : ''}`;
 
     return `
-      <article class="filterable" data-id="${currentId}" data-track="${this._escapeHtml(article.track || '')}">
+      <article class="filterable" data-id="\${currentId}" data-track="	h\is._escapeHtml(article.track || '')}">
         <div class="article-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;">
-          <h2 class="article-title-clickable" style="cursor:pointer;margin:0;">${titleHtml}</h2>
-          <button class="${badgeClass}" data-id="${currentId}" style="cursor:pointer;flex-shrink:0;white-space:nowrap;">
-            ${this._escapeHtml(article.discipline || 'Unknown')}
+          <h2 class="article-title-clickable" style="cursor:pointer;margin:0;">\${titleHtml}</h2>
+          <button class="\${badgeClass}" data-id="\${currentId}" style="cursor:pointer;flex-shrink:0;white-space:nowrap;">
+            \${this._escapeHtml(article.discipline || 'Unknown')}
           </button>
         </div>
 
-        <p class="abstract-text">${abstractHtml}</p>
+        <p class="abstract-text">\${abstractHtml}</p>
 
-        ${snippetHtml}
-        ${expandedHtml}
+        \${snippetHtml}
+        \${expandedHtml}
 
-        <div class="article-tags-bottom">${tagsHtml}</div>
+        <div class="article-tags-bottom">\${tagsHtml}</div>
       </article>
     `;
   }
 
-_renderGlobalTagCloud() {
-  const cloud = this._refs.globalTagCloud;
-  if (!cloud) return;
+  _renderGlobalTagCloud() {
+    const cloud = this._refs.globalTagCloud;
+    if (!cloud) return;
 
-  const sourceItems =
-    this._state.trackFilter && this._state.trackFilter !== 'all'
-      ? this._state.all.filter((a) => a.track === this._state.trackFilter)
-      : this._state.all;
+    const sourceItems =
+      this._state.trackFilter && this._state.trackFilter !== 'all'
+        ? this._state.all.filter((a) => a.track === this._state.trackFilter)
+        : this._state.all;
 
-  const tags = new Set();
-  sourceItems.forEach((a) => {
-    const currentTags = a.keywords || a.tags || [];
-    currentTags.forEach((t) => {
-      if (typeof t === 'string' && t.trim()) tags.add(t.trim());
+    const tags = new Set();
+    sourceItems.forEach((a) => {
+      const currentTags = a.keywords || a.tags || [];
+      currentTags.forEach((t) => {
+        if (typeof t === 'string' && t.trim()) tags.add(t.trim());
+      });
     });
-  });
 
-  if (tags.size === 0) {
-    cloud.innerHTML = '';
-    return;
+    if (tags.size === 0) {
+      cloud.innerHTML = '';
+      return;
+    }
+
+    cloud.innerHTML = Array.from(tags)
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+      .map((tag) => {
+        const active = tag === this._state.tagFilter ? ' active' : '';
+        return `<button class="global-tag-btn\${active}" data-tag="\${this._escapeHtml(tag)}">#\${this._escapeHtml(tag)}</button>`;
+      })
+      .join(' ');
   }
-
-  cloud.innerHTML = Array.from(tags)
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-    .map((tag) => {
-      const active = tag === this._state.tagFilter ? ' active' : '';
-      return `<button class="global-tag-btn${active}" data-tag="${this._escapeHtml(tag)}">#${this._escapeHtml(tag)}</button>`;
-    })
-    .join(' ');
-}
 
   _updateSearchUI() {
     const { searchCounter, noResults } = this._refs;
     const { filtered, query, tagFilter } = this._state;
     const isSearching = query.length > 0;
-    const tagNotice = tagFilter ? ` filtered by #${tagFilter}` : '';
+    const tagNotice = tagFilter ? ` filtered by #\${tagFilter}` : '';
 
     if (searchCounter) {
       searchCounter.textContent = isSearching
-        ? `Found ${filtered.length} matching steps sorted by relevance${tagNotice}`
-        : `Track index loaded. Total modules available: ${filtered.length}${tagNotice}`;
+        ? `Found \${filtered.length} matching steps sorted by relevance\${tagNotice}`
+        : `Track index loaded. Total modules available: \${filtered.length}\${tagNotice}`;
     }
 
     noResults?.classList.toggle('hidden', filtered.length > 0);
@@ -838,14 +841,14 @@ _renderGlobalTagCloud() {
   _scrollToAnchor(rawHash = '') {
     const hash = rawHash.startsWith('#') ? rawHash.slice(1) : rawHash;
     const expanded = this._refs.articlesContainer?.querySelector(
-      `[data-id="${this._state.activeId}"]`
+      `[data-id="\${this._state.activeId}"]`
     );
     if (!expanded) return;
 
     if (hash) {
       let target = document.getElementById(hash);
       if (!target && this._state.activeId) {
-        target = document.getElementById(`${this._state.activeId}--${hash}`);
+        target = document.getElementById(`\${this._state.activeId}--\${hash}`);
       }
       if (target && expanded.contains(target)) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -893,7 +896,7 @@ _renderGlobalTagCloud() {
 
     if (sectionTitle) {
       const escapedSection = this._escapeHtml(sectionTitle);
-      return `<span class="snippet-section" style="display:block; font-weight:bold; color:#1e3a8a; margin-bottom:4px; font-style:normal;">📌 ${escapedSection}</span>${highlightedSnippet}`;
+      return `<span class="snippet-section" style="display:block; font-weight:bold; color:#1e3a8a; margin-bottom:4px; font-style:normal;">📌 \${escapedSection}</span>\${highlightedSnippet}`;
     }
 
     return highlightedSnippet;
@@ -916,15 +919,16 @@ _renderGlobalTagCloud() {
     if (!words.length || !text) return this._escapeHtml(text);
 
     const safeWords = words
-      .map((w) => w.replace(/^\./, ''))
+      .map((w) => w.startsWith('.') ? w : w.replace(/^\./, ''))
       .filter(Boolean)
-      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      .map((w) => w.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&'));
 
     if (!safeWords.length) return this._escapeHtml(text);
 
-    const escapedText = this._escapeHtml(text);
-    const re = new RegExp(`(${safeWords.join('|')})`, 'gi');
-    return escapedText.replace(re, '<mark>$1</mark>');
+    let escapedText = this._escapeHtml(text);
+    
+    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(\${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
+    return escapedText.replace(re, '<mark>\$1</mark>');
   }
 
   _syncResetButton() {
