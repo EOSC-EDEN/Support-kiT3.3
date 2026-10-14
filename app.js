@@ -287,11 +287,9 @@ class KitApp {
                 }
               } else {
                 console.warn(`Could not load file: ${article.text} (HTTP ${mdRes.status})`);
-                article.markdownContent = `*⚠️ Kunne ikke laste modulinnholdet (HTTP ${mdRes.status}).*`;
               }
             } catch (mdErr) {
               console.error(`Error loading ${article.text}:`, mdErr);
-              article.markdownContent = `*⚠️ Klarte ikke å hente innholdet for denne modulen pga. en nettverksfeil.*`;
             }
           } else if (article.text && typeof article.text === 'string') {
             article.markdownContent = article.text.trim();
@@ -330,13 +328,10 @@ class KitApp {
       if (!isSearching) return true;
 
       const haystack = a.__searchText || this._buildSearchText(a);
-
       return words.every((w) => {
-        const clean = w.startsWith('.') ? w : w.replace(/^\./, '');
-        const safeWord = clean.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');
-        
-        const exactWordRegex = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])${safeWord}(?=$|[\\s,.:;?!()"\[\]{}])`, 'i');
-        return exactWordRegex.test(haystack);
+        const clean = w.replace(/^\./, '');
+        const safe = haystack.replace(/\./g, '');
+        return haystack.includes(w) || safe.includes(clean);
       });
     });
 
@@ -344,7 +339,7 @@ class KitApp {
       const firstWordString = words[0] || '';
       const scoreOf = (title) => {
         const t = (title || '').toLowerCase().trim();
-        const c = firstWordString.startsWith('.') ? firstWordString : firstWordString.replace(/^\./, '');
+        const c = firstWordString.replace(/^\./, '');
         if (t === firstWordString || t === c) return 3;
         if (t.startsWith(firstWordString) || t.startsWith(c)) return 2;
         return 1;
@@ -418,13 +413,13 @@ class KitApp {
     if (!words.length) return;
 
     const safeWords = words
-      .map((w) => w.startsWith('.') ? w : w.replace(/^\./, ''))
+      .map((w) => w.replace(/^\./, ''))
       .filter(Boolean)
-      .map((w) => w.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&'));
+      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
     if (!safeWords.length) return;
 
-    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
+    const re = new RegExp(`(${safeWords.join('|')})`, 'gi');
 
     const walk = (node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -513,9 +508,8 @@ class KitApp {
         })
         .sort((a, b) => parseInt(a.order || 0, 10) - parseInt(b.order || 0, 10));
 
-      const nextModule = next[0];
-      const nextId = nextModule ? nextModule['@id'] : null;
-      const nextBtn = nextModule
+      const nextId = next[0] ? next[0]['@id'] : null;
+      const nextBtn = next[0]
         ? `<button class="next-step-btn" data-next-id="${this._escapeHtml(nextId)}">Next modul →</button>`
         : '';
 
@@ -565,36 +559,36 @@ class KitApp {
     `;
   }
 
-  _renderGlobalTagCloud() {
-    const cloud = this._refs.globalTagCloud;
-    if (!cloud) return;
+_renderGlobalTagCloud() {
+  const cloud = this._refs.globalTagCloud;
+  if (!cloud) return;
 
-    const sourceItems =
-      this._state.trackFilter && this._state.trackFilter !== 'all'
-        ? this._state.all.filter((a) => a.track === this._state.trackFilter)
-        : this._state.all;
+  const sourceItems =
+    this._state.trackFilter && this._state.trackFilter !== 'all'
+      ? this._state.all.filter((a) => a.track === this._state.trackFilter)
+      : this._state.all;
 
-    const tags = new Set();
-    sourceItems.forEach((a) => {
-      const currentTags = a.keywords || a.tags || [];
-      currentTags.forEach((t) => {
-        if (typeof t === 'string' && t.trim()) tags.add(t.trim());
-      });
+  const tags = new Set();
+  sourceItems.forEach((a) => {
+    const currentTags = a.keywords || a.tags || [];
+    currentTags.forEach((t) => {
+      if (typeof t === 'string' && t.trim()) tags.add(t.trim());
     });
+  });
 
-    if (tags.size === 0) {
-      cloud.innerHTML = '';
-      return;
-    }
-
-    cloud.innerHTML = Array.from(tags)
-      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-      .map((tag) => {
-        const active = tag === this._state.tagFilter ? ' active' : '';
-        return `<button class="global-tag-btn${active}" data-tag="${this._escapeHtml(tag)}">#${this._escapeHtml(tag)}</button>`;
-      })
-      .join(' ');
+  if (tags.size === 0) {
+    cloud.innerHTML = '';
+    return;
   }
+
+  cloud.innerHTML = Array.from(tags)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .map((tag) => {
+      const active = tag === this._state.tagFilter ? ' active' : '';
+      return `<button class="global-tag-btn${active}" data-tag="${this._escapeHtml(tag)}">#${this._escapeHtml(tag)}</button>`;
+    })
+    .join(' ');
+}
 
   _updateSearchUI() {
     const { searchCounter, noResults } = this._refs;
@@ -913,27 +907,23 @@ class KitApp {
   }
 
   _escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
   }
 
   _highlight(text, words) {
     if (!words.length || !text) return this._escapeHtml(text);
 
     const safeWords = words
-      .map((w) => w.startsWith('.') ? w : w.replace(/^\./, ''))
+      .map((w) => w.replace(/^\./, ''))
       .filter(Boolean)
-      .map((w) => w.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&'));
+      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
     if (!safeWords.length) return this._escapeHtml(text);
 
-    let escapedText = this._escapeHtml(text);
-    
-    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
+    const escapedText = this._escapeHtml(text);
+    const re = new RegExp(`(${safeWords.join('|')})`, 'gi');
     return escapedText.replace(re, '<mark>$1</mark>');
   }
 
