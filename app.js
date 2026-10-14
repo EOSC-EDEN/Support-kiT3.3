@@ -287,9 +287,11 @@ class KitApp {
                 }
               } else {
                 console.warn(`Could not load file: ${article.text} (HTTP ${mdRes.status})`);
+                article.markdownContent = `*⚠️ Kunne ikke laste modulinnholdet (HTTP ${mdRes.status}).*`;
               }
             } catch (mdErr) {
               console.error(`Error loading ${article.text}:`, mdErr);
+              article.markdownContent = `*⚠️ Klarte ikke å hente innholdet for denne modulen pga. en nettverksfeil.*`;
             }
           } else if (article.text && typeof article.text === 'string') {
             article.markdownContent = article.text.trim();
@@ -333,7 +335,7 @@ class KitApp {
         const clean = w.startsWith('.') ? w : w.replace(/^\./, '');
         const safeWord = clean.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');
         
-        const exactWordRegex = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])\${safeWord}(?=$|[\\s,.:;?!()"\[\]{}])`, 'i');
+        const exactWordRegex = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])${safeWord}(?=$|[\\s,.:;?!()"\[\]{}])`, 'i');
         return exactWordRegex.test(haystack);
       });
     });
@@ -395,7 +397,7 @@ class KitApp {
 
     if (this._state.activeId) {
       const expanded = articlesContainer.querySelector(
-        `[data-id="\${this._state.activeId}"] .markdown-body`
+        `[data-id="${this._state.activeId}"] .markdown-body`
       );
 
       if (expanded) {
@@ -422,7 +424,7 @@ class KitApp {
 
     if (!safeWords.length) return;
 
-    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(\${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
+    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
 
     const walk = (node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -478,7 +480,7 @@ class KitApp {
     const tagsHtml = articleTags.map((tag) => {
       const activeCls = tag === this._state.tagFilter ? ' active' : '';
       const tagHtml = this._highlight(tag, words);
-      return `<button class="badge tag-click-btn\${activeCls}" data-tag="\${this._escapeHtml(tag)}">#\${tagHtml}</button>`;
+      return `<button class="badge tag-click-btn${activeCls}" data-tag="${this._escapeHtml(tag)}">#${tagHtml}</button>`;
     }).join(' ');
 
     let expandedHtml = '';
@@ -511,17 +513,18 @@ class KitApp {
         })
         .sort((a, b) => parseInt(a.order || 0, 10) - parseInt(b.order || 0, 10));
 
-      const nextId = next[0] ? next[0]['@id'] : null;
-      const nextBtn = next[0]
-        ? `<button class="next-step-btn" data-next-id="\${this._escapeHtml(nextId)}">Next modul →</button>`
+      const nextModule = next[0];
+      const nextId = nextModule ? nextModule['@id'] : null;
+      const nextBtn = nextModule
+        ? `<button class="next-step-btn" data-next-id="${this._escapeHtml(nextId)}">Next modul →</button>`
         : '';
 
       expandedHtml = `
         <div class="full-content">
-          <div class="markdown-body">\${body}</div>
+          <div class="markdown-body">${body}</div>
           <div class="learning-path-actions">
-            \${nextBtn}
-            <button class="share-btn" data-id="\${currentId}">Copy share link 🔗</button>
+            ${nextBtn}
+            <button class="share-btn" data-id="${currentId}">Copy share link 🔗</button>
             <button class="close-article-btn">Close Module ✕</button>
           </div>
         </div>
@@ -535,29 +538,29 @@ class KitApp {
       if (snippet) {
         snippetHtml = `
           <div class="search-match-snippet" style="margin-top: 10px; padding: 8px 12px; background: #f8fafc; border-left: 3px solid #bfdbfe; font-size: 0.85rem; color: #4a5568; font-style: italic;">
-            <strong>Hit in content:</strong> \${snippet}
+            <strong>Hit in content:</strong> ${snippet}
           </div>
         `;
       }
     }
 
-    const badgeClass = `badge discipline-badge\${isExpanded ? ' is-open' : ''}`;
+    const badgeClass = `badge discipline-badge${isExpanded ? ' is-open' : ''}`;
 
     return `
-      <article class="filterable" data-id="\${currentId}" data-track="	h\is._escapeHtml(article.track || '')}">
+      <article class="filterable" data-id="${currentId}" data-track="${this._escapeHtml(article.track || '')}">
         <div class="article-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;">
-          <h2 class="article-title-clickable" style="cursor:pointer;margin:0;">\${titleHtml}</h2>
-          <button class="\${badgeClass}" data-id="\${currentId}" style="cursor:pointer;flex-shrink:0;white-space:nowrap;">
-            \${this._escapeHtml(article.discipline || 'Unknown')}
+          <h2 class="article-title-clickable" style="cursor:pointer;margin:0;">${titleHtml}</h2>
+          <button class="${badgeClass}" data-id="${currentId}" style="cursor:pointer;flex-shrink:0;white-space:nowrap;">
+            ${this._escapeHtml(article.discipline || 'Unknown')}
           </button>
         </div>
 
-        <p class="abstract-text">\${abstractHtml}</p>
+        <p class="abstract-text">${abstractHtml}</p>
 
-        \${snippetHtml}
-        \${expandedHtml}
+        ${snippetHtml}
+        ${expandedHtml}
 
-        <div class="article-tags-bottom">\${tagsHtml}</div>
+        <div class="article-tags-bottom">${tagsHtml}</div>
       </article>
     `;
   }
@@ -588,7 +591,7 @@ class KitApp {
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
       .map((tag) => {
         const active = tag === this._state.tagFilter ? ' active' : '';
-        return `<button class="global-tag-btn\${active}" data-tag="\${this._escapeHtml(tag)}">#\${this._escapeHtml(tag)}</button>`;
+        return `<button class="global-tag-btn${active}" data-tag="${this._escapeHtml(tag)}">#${this._escapeHtml(tag)}</button>`;
       })
       .join(' ');
   }
@@ -597,12 +600,12 @@ class KitApp {
     const { searchCounter, noResults } = this._refs;
     const { filtered, query, tagFilter } = this._state;
     const isSearching = query.length > 0;
-    const tagNotice = tagFilter ? ` filtered by #\${tagFilter}` : '';
+    const tagNotice = tagFilter ? ` filtered by #${tagFilter}` : '';
 
     if (searchCounter) {
       searchCounter.textContent = isSearching
-        ? `Found \${filtered.length} matching steps sorted by relevance\${tagNotice}`
-        : `Track index loaded. Total modules available: \${filtered.length}\${tagNotice}`;
+        ? `Found ${filtered.length} matching steps sorted by relevance${tagNotice}`
+        : `Track index loaded. Total modules available: ${filtered.length}${tagNotice}`;
     }
 
     noResults?.classList.toggle('hidden', filtered.length > 0);
@@ -841,14 +844,14 @@ class KitApp {
   _scrollToAnchor(rawHash = '') {
     const hash = rawHash.startsWith('#') ? rawHash.slice(1) : rawHash;
     const expanded = this._refs.articlesContainer?.querySelector(
-      `[data-id="\${this._state.activeId}"]`
+      `[data-id="${this._state.activeId}"]`
     );
     if (!expanded) return;
 
     if (hash) {
       let target = document.getElementById(hash);
       if (!target && this._state.activeId) {
-        target = document.getElementById(`\${this._state.activeId}--\${hash}`);
+        target = document.getElementById(`${this._state.activeId}--${hash}`);
       }
       if (target && expanded.contains(target)) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -896,7 +899,7 @@ class KitApp {
 
     if (sectionTitle) {
       const escapedSection = this._escapeHtml(sectionTitle);
-      return `<span class="snippet-section" style="display:block; font-weight:bold; color:#1e3a8a; margin-bottom:4px; font-style:normal;">📌 \${escapedSection}</span>\${highlightedSnippet}`;
+      return `<span class="snippet-section" style="display:block; font-weight:bold; color:#1e3a8a; margin-bottom:4px; font-style:normal;">📌 ${escapedSection}</span>${highlightedSnippet}`;
     }
 
     return highlightedSnippet;
@@ -910,9 +913,12 @@ class KitApp {
   }
 
   _escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = String(str);
-    return div.innerHTML;
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   _highlight(text, words) {
@@ -927,8 +933,8 @@ class KitApp {
 
     let escapedText = this._escapeHtml(text);
     
-    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(\${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
-    return escapedText.replace(re, '<mark>\$1</mark>');
+    const re = new RegExp(`(?<=^|[\\s,.:;?!()"\[\]{}])(${safeWords.join('|')})(?=$|[\\s,.:;?!()"\[\]{}])`, 'gi');
+    return escapedText.replace(re, '<mark>$1</mark>');
   }
 
   _syncResetButton() {
