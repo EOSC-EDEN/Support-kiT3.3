@@ -1,28 +1,47 @@
-Github pages show now the content under this main branch.
+This demo solution in the main branch should present you with the following functionality as of now: 
 
-**This code is based on going some steps further in developments from the presented early mockup of Support kit T3.3 - and gh pages connected to it.** 
+## Content
+Markdown files with front matter, located in folder articles, are the basis for the web content. The solution is further based on html, vanilla javascript, css styling and json. Github actions is used. AI have been used to produce and check code. 
 
-**AI was used in the process to create and check code for the early mockup.** 
+## Search & Relevance
 
-**The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it).
+- Advanced Full-Text Search: Simultaneously searches across the title (name/title), abstract (description/abstract), keywords (keywords/tags), and the actual body content of the modules.
+- Smart Weighting & Sorting: Searches automatically score hits in the title higher than hits in the body text, sorting results by relevance. When no search is active, modules are sorted logically by their track and order.
+- Search Match Snippets: Automatically generates a text excerpt under each closed module showing exactly where your search term matched. If the match occurs under a specific Markdown heading, it displays that section header with a pin icon (📌).
+- Automatic Term Highlighting: Uses <mark> tags to visually highlight search words in titles, abstracts, and match snippets.
+- Code-Term Protection: Handles dots and special characters in search words (like .js) correctly, ensuring stable results when searching for programming terminology.
+- Minimum Length Threshold: Requires a minimum of 3 characters before initiating a text search to protect performance on large datasets.
 
-**markdown files in the folder "articles" will end up in index.json, that again is the basis for the full content in gh pages.**
+## Tag Management & Filtering
 
-## How to contribute with content? 
-Write your content in markdown, based on template/ other markdown files in the folder "articles". 
+- Global Tag Cloud: Dynamically generates a cloud of tags based on the modules available within the currently selected track.
+- Visual Tag Suggestions: Scans the tag cloud while you type in the search bar. If a tag partially matches your query, it automatically receives a CSS class (tag-suggestion-highlight) to hint at relevant topics.
+- Independent Tag Filtering: Clicking a tag isolates modules containing that tag. The tag filter works together with the search input instead of overwriting it.
+- Track Buttons: Fast filters that narrow down the content list based on main discipline/track buttons.
+- Toggle Tag Visibility: Supports a checkbox (#tagToggleCheckbox) to hide or display the entire global tag cloud based on user preference.
 
-## Note on filtering:
+## Data Ingestion & Parsing
 
-"Track" (or if you like: learning path) is the top level filtering. Next level, under paths, is tags (/keywords).  
+- Asynchronous Parallel Loading: Fetches external .md files in the background using a controlled queue (runWithConcurrency), capped at a maximum of 4 simultaneous requests to protect the server.
+- Flexible Ingestion Formats: Accepts module text sources as plain text, URL strings, or structured JSON objects (article.text.text).
+- Robust Front-Matter Parser: Scans the top of Markdown files for YAML-like metadata blocks (e.g., --- title: Name ---), extracts them automatically, and converts bracketed lists (like [tag1, tag2]) into proper JavaScript arrays.
 
-## Searching 
-A search can both have hits in module titles, tags, module descriptions, as well as module content (the last shown as a small "preview" area, and marked in module content when a module is open). 
+## Rendering & Content Injection
 
-## Search Mode (When you TYPE in the search field).
+- Markdown-to-HTML: Utilizes markdown-it to render rich text with HTML capabilities and automatic link conversion.
+- Safe DOM Highlighting: When a module is expanded, it scans the actual text nodes in the DOM tree to highlight search keywords without breaking internal HTML tags or corrupting the markdown structure.
+- Dynamic Heading IDs: Generates unique, URL-safe header IDs (slugify) for all headings inside an expanded module to prevent ID collisions between different files.
+- Internal Anchor Rewriting: Automatically rewrites standard anchor tags (href="#section") so they point directly to the correct heading within that specific expanded module container.
 
-Results are sorted by relevance, and to what degree the search term matches the title etc.:
+## UX, Navigation & Routing
 
-The code assigns points (scoring) based on where your search term appears:3 points (Highest relevance): If the article title matches the exact word you searched for. 2 points (Medium relevance): If the article title starts with the word you searched for. 1 point (Lowest relevance): If the word is found anywhere inside the title text, inside the abstract (summary), or among the tags.In case of a tie (Equal score):If two articles get the exact same score (for example, if both contain the search term right in the middle of their abstracts), the code falls back on sorting the titles alphabetically to determine which one comes first.
+- Step-by-Step Learning Paths: Displays a dynamic "Next module" button based on track and order, letting users seamlessly progress through the course content.
+- URL Synchronization (Routing): Keeps search strings (?q=), track filters (?track=), tags (?tag=), and the active module (?id=) in sync with the browser address bar. It utilizes popstate so browser forward/backward navigation works perfectly.
+- Deep Heading Linking: Supports deep links (e.g., ?id=module-1#introduction), automatically scrolling to the module, expanding it, and smoothly moving down to the targeted section header.
+- Share Link Generator: A button inside expanded modules copies a complete direct link to the clipboard and gives instant visual feedback ("Link copied! ✔").
+- One-Click Reset: A dedicated reset button completely clears the search field, removes active tag/track filters, and resets the URL parameters in one click.
+- Pagination (Load More): Displays up to 10 modules at a time and automatically hides or shows the "Load More" button based on how many modules remain.
+
 
 ## The use of Markdown-it is in this solution based on their provided MIT License for the markdown-it javascript, as follows:
 
