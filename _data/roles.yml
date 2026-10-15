@@ -1,0 +1,20 @@
+# The three EDEN support-kit roles. One source for labels, icons and landing pages.
+# Modules point here through `story.as`; `anyone` means the module is for every role.
+- id: researcher
+  plural: Researchers
+  type: Researchers
+  url: /researchers
+  icon: icon-flask-conical
+  blurb: You produce data and hand it to a repository.
+- id: manager
+  plural: Repository managers
+  type: Repository_managers
+  url: /repository_managers
+  icon: icon-archive
+  blurb: You run the processes that keep deposits trustworthy.
+- id: trainer
+  plural: RDM trainers
+  type: RDM_trainers
+  url: /rdm_trainers
+  icon: icon-graduation-cap
+  blurb: You teach preservation, with the kit as curriculum.

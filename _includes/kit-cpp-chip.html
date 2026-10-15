@@ -1,0 +1,3 @@
+{%- assign kit_chip_cpp = site.data.cpps.cpps | where: "id", include.id | first -%}
+{%- assign kit_chip_slug = include.id | downcase | replace: "-", "_" | prepend: "/" -%}
+<a class="cpp-chip" data-cpp="{{ include.id }}" href="{{ kit_chip_slug | relative_url }}" title="{{ include.id }} {{ kit_chip_cpp.label }}"><span class="cpp-id">{{ include.id }}</span>{% if include.label %}<span class="cpp-name">{{ kit_chip_cpp.label }}</span>{% endif %}</a>

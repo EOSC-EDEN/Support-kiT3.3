@@ -1,0 +1,9 @@
+{%- comment -%} On role landing pages: the modules written for every role. {%- endcomment -%}
+{%- assign ksh_mods = site.pages | where: "layout", "module" | sort: "order" -%}
+<h2 id="shared-with-every-role">Shared with every role</h2>
+<p class="text-secondary">These apply whatever your role. Read them alongside your own path.</p>
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-1 mb-4 navigation-tiles">
+  {%- for ksh_p in ksh_mods %}{% assign ksh_as = ksh_p.story.as | default: "anyone" %}{% if ksh_as == "anyone" %}
+  <div class="col">{% include navigation-tile-card.html tile_page=ksh_p variant="related" %}</div>
+  {%- endif %}{% endfor %}
+</div>

@@ -1,0 +1,85 @@
+title: EOSC EDEN Support-kit
+description: Guidance, checklists and training to help communities adopt, adapt and extend the EOSC EDEN digital preservation framework.
+
+remote_theme: ELIXIR-Belgium/elixir-toolkit-theme@7.0.0
+repository: EOSC-EDEN/support-kit3.3   # needed by jekyll-github-metadata when building outside GitHub
+
+exclude:
+  - .gitignore
+  - HANDOVER.md
+  - var/
+  - vendor
+  - Gemfile*
+  - LICENSE
+  - README.md
+
+sass:
+  style: compressed
+  sourcemap: never
+
+# Sections are assigned by folder, the way RDMkit does it. Authors never write
+# `type`, `layout` or `sidebar` in a page.
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      permalink: /:basename
+      layout: page
+      sidebar: main
+  - scope:
+      path: "pages/getting_started/"
+    values:
+      type: Getting_started
+      layout: module
+  - scope:
+      path: "pages/researchers/"
+    values:
+      type: Researchers
+      layout: module
+  - scope:
+      path: "pages/repository_managers/"
+    values:
+      type: Repository_managers
+      layout: module
+  - scope:
+      path: "pages/rdm_trainers/"
+    values:
+      type: RDM_trainers
+      layout: module
+  - scope:
+      path: "pages/cpps/"
+    values:
+      type: Core_preservation_processes
+      layout: cpp
+      toc: false
+
+plugins:
+  - elixir-toolkit-theme-plugins
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-github-metadata
+  - jemoji
+
+theme_variables:
+  theme_color: 008691
+  breadcrumb: false
+  github_buttons:
+    position: top
+    edit_me: true
+    open_issue: true
+    history: true
+  topnav:
+    brand_logo: assets/img/eden-logo.png
+    search: true
+    github: true
+  fonts:
+    - https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Inter:wght@400;500;600&display=swap
+  headings:
+    related-pages: Related modules
+
+github:
+  repository_url: https://github.com/EOSC-EDEN/support-kit3.3
+  source:
+    branch: main

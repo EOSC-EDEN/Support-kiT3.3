@@ -1,0 +1,25 @@
+/*-----General styling-----*/
+$font-family-theme: "Lexend", "Inter", sans-serif;
+$h2-color: $eden-ink;   /* teal stays for links and accents, not every heading */
+
+/*-----Top navigation (white, so the colour-positive EDEN logo works)-----*/
+$topnav-bg: $white;
+$topnav-title-color: $eden-ink;
+$topnav-brand-height: 44px;
+$topnav-link-color: $eden-ink;
+$topnav-link-color-active: $white;
+$topnav-link-bg-active: $eden-teal;
+
+/*-----Sidebar-----*/
+$sidebar-link-bg-active: rgba($eden-teal, 0.1);
+
+/*-----Section navigation tiles-----*/
+$nav-card-bg-hover: $light;
+$nav-card-arrow-bg: rgba($eden-teal, 0.12);
+
+/*-----Footer-----*/
+$footer-bg: #0b3b40;
+$footer-color: $white;
+$footer-link-color: $white;
+$footer-link-color-hover: #7fd3da;
+$footer-copyright-bg: #00000033;

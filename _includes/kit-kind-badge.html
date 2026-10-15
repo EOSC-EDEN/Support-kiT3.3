@@ -1,0 +1,11 @@
+{%- comment -%}
+  Diátaxis kind, labelled by what the reader gets out of it. The Diátaxis term stays in the tooltip.
+{%- endcomment -%}
+{%- case include.kind -%}
+{%- when "tutorial" -%}{%- assign kb_label = "Learn by doing" -%}{%- assign kb_why = "Tutorial: a guided first walkthrough" -%}
+{%- when "how-to" -%}{%- assign kb_label = "Get it done" -%}{%- assign kb_why = "How-to guide: steps to reach a specific goal" -%}
+{%- when "reference" -%}{%- assign kb_label = "Look it up" -%}{%- assign kb_why = "Reference: facts and lists to consult" -%}
+{%- when "explanation" -%}{%- assign kb_label = "Understand why" -%}{%- assign kb_why = "Explanation: background and reasoning" -%}
+{%- else -%}{%- assign kb_label = nil -%}
+{%- endcase -%}
+{%- if kb_label -%}<span class="kind-badge kind-{{ include.kind }}" data-bs-toggle="tooltip" title="{{ kb_why }} (Diátaxis)">{{ kb_label }}</span>{%- endif -%}

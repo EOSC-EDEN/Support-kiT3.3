@@ -1,0 +1,21 @@
+subitems:
+  - title: Home
+    url: /
+  - title: Get started
+    url: /navigating_kit
+  - title: Roles
+    subitems:
+      - title: Researchers
+        url: /researchers
+      - title: Repository managers
+        url: /repository_managers
+      - title: RDM trainers
+        url: /rdm_trainers
+  - title: CPPs
+    url: /cpps
+  - title: Indicators
+    url: /indicators
+  - title: Frameworks
+    url: /frameworks
+  - title: Contribute
+    url: /contribute

@@ -1,0 +1,17 @@
+{%- comment -%}
+  Who a module is for. `story.as: anyone` (or no story) means every role, and says so.
+  compact=true (home rows): only shared modules get a tag; the group heading already names the role.
+{%- endcomment -%}
+{%- assign ka_as = include.p.story.as | default: "anyone" -%}
+{%- if ka_as == "anyone" -%}
+{%- if include.compact -%}
+<span class="meta-item meta-audience is-all"><i class="icon-users" aria-hidden="true"></i>For every role</span>
+{%- else -%}
+<span class="meta-audience is-all"><i class="icon-users" aria-hidden="true"></i>For every role:{% for ka_r in site.data.roles %} <a class="role-pill" href="{{ ka_r.url | relative_url }}">{{ ka_r.plural }}</a>{% endfor %}</span>
+{%- endif -%}
+{%- else -%}
+{%- unless include.compact -%}
+{%- assign ka_r = site.data.roles | where: "id", ka_as | first -%}
+<span class="meta-audience"><i class="icon-user" aria-hidden="true"></i>For <a class="role-pill" href="{{ ka_r.url | relative_url }}">{{ ka_r.plural }}</a></span>
+{%- endunless -%}
+{%- endif -%}

@@ -1,0 +1,120 @@
+# Google Docs to pull request
+#
+# Authors write modules in copies of the Google Docs template and move a finished Doc
+# into the "ready for the kit" Drive folder. Every hour this workflow picks up Docs that
+# were edited since the last run or that the kit has not seen yet, turns each into a
+# module page and opens (or updates) one pull request per Doc.
+#
+# Only a missing title stops a Doc; that goes back to the author as a comment in the Doc.
+# Anything else (an unknown process, an empty "kind of help") is filled with a default
+# and listed in the pull request for the reviewer, labelled needs-attention.
+#
+# A manual run (Actions > Google Docs to pull request > Run workflow) can take one Doc link.
+#
+# One-time setup: see "Google Docs to pull request: setup" in README.md.
+#
+# Branch: pull requests target the branch in repository variable KIT_BRANCH (default: ett).
+# GitHub only runs scheduled workflows from the DEFAULT branch. While `ett` is not the
+# default branch, keep a copy of this file on the default branch too (it checks out
+# KIT_BRANCH itself), or run it by hand from the Actions tab.
+name: Google Docs to pull request
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      doc:
+        description: "Google Doc link (leave empty to check the whole ready folder)"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: gdocs-to-pr
+  cancel-in-progress: false
+
+jobs:
+  find:
+    runs-on: ubuntu-24.04
+    outputs:
+      docs: ${{ steps.list.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ vars.KIT_BRANCH || 'ett' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet -r var/requirements-gdocs.txt
+      - id: list
+        env:
+          GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+          GDRIVE_READY_FOLDER: ${{ vars.GDRIVE_READY_FOLDER }}
+          DOC_INPUT: ${{ inputs.doc }}
+          EVENT: ${{ github.event_name }}
+        run: python3 var/gdocs_sync.py list >> "$GITHUB_OUTPUT"
+
+  module:
+    needs: find
+    if: needs.find.outputs.docs != '[]' && needs.find.outputs.docs != ''
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        doc: ${{ fromJSON(needs.find.outputs.docs) }}
+    name: ${{ matrix.doc.name }}
+    env:
+      GDRIVE_SA_KEY: ${{ secrets.GDRIVE_SA_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ vars.KIT_BRANCH || 'ett' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet -r var/requirements-gdocs.txt
+
+      - name: Convert the Doc
+        id: convert
+        run: python3 var/gdocs_sync.py convert "${{ matrix.doc.id }}" >> "$GITHUB_OUTPUT"
+
+      - name: Tell the author what to fix
+        if: steps.convert.outputs.ok == 'false'
+        env:
+          COMMENT: ${{ steps.convert.outputs.comment }}
+        run: |
+          printf '%s' "$COMMENT" | python3 var/gdocs_sync.py comment "${{ matrix.doc.id }}"
+          echo "::warning title=${{ matrix.doc.name }}::Not converted; the author got a comment in the Doc."
+
+      - name: Open or update the pull request
+        id: pr
+        if: steps.convert.outputs.ok == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # A token other than GITHUB_TOKEN lets the site build check run on the PR (optional).
+          token: ${{ secrets.KIT_BOT_TOKEN || github.token }}
+          base: ${{ vars.KIT_BRANCH || 'ett' }}
+          branch: gdocs/${{ matrix.doc.id }}
+          delete-branch: true
+          add-paths: |
+            pages/**
+            assets/img/modules/**
+          commit-message: "Module from Google Docs: ${{ steps.convert.outputs.title }}"
+          title: "Module: ${{ steps.convert.outputs.title }}"
+          body: ${{ steps.convert.outputs.body }}
+          labels: |
+            from-google-docs
+            ${{ steps.convert.outputs.attention == 'true' && 'needs-attention' || '' }}
+
+      - name: Tell the author it is in review
+        if: steps.pr.outputs.pull-request-operation == 'created'
+        env:
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+          NOTES: ${{ steps.convert.outputs.notes }}
+        run: |
+          printf 'Sent to the support-kit for review: %s\nKeep editing here; changes to this Doc update the review automatically.%s' "$PR_URL" "$NOTES" \
+            | python3 var/gdocs_sync.py comment "${{ matrix.doc.id }}"

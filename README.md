@@ -1,73 +1,119 @@
-This demo solution in the main branch should present you with the following functionality as of now: 
+# EOSC EDEN Support-kit — ELIXIR Toolkit Theme demo
 
-## Content
-Markdown files with front matter, located in folder articles, are the basis for the web content. The solution is further based on html, vanilla javascript, css styling and json. Github actions is used. AI have been used to produce and check code. 
+> **Branch:** this site lives on `ett` until it replaces the old app on `main`. See HANDOVER.md.
 
-## Search & Relevance
+Plain Jekyll site on the ELIXIR Toolkit Theme (pinned `@7.0.0`), structured like RDMkit.
+Nothing in the theme is overridden: everything EDEN-specific is a new file.
 
-- Advanced Full-Text Search: Simultaneously searches across the title (name/title), abstract (description/abstract), keywords (keywords/tags), and the actual body content of the modules.
-- Smart Weighting & Sorting: Searches automatically score hits in the title higher than hits in the body text, sorting results by relevance. When no search is active, modules are sorted logically by their track and order.
-- Search Match Snippets: Automatically generates a text excerpt under each closed module showing exactly where your search term matched. If the match occurs under a specific Markdown heading, it displays that section header with a pin icon (📌).
-- Automatic Term Highlighting: Uses <mark> tags to visually highlight search words in titles, abstracts, and match snippets.
-- Code-Term Protection: Handles dots and special characters in search words (like .js) correctly, ensuring stable results when searching for programming terminology.
-- Minimum Length Threshold: Requires a minimum of 3 characters before initiating a text search to protect performance on large datasets.
+- `_config.yml`: sections by folder (`type` and `layout` come from `defaults`), branding variables
+- `_data/`: navigation, footer, contributors (ORCID), frameworks, `cpps.json` (mirrored from WP1)
+- `_layouts/module.html`, `_layouts/cpp.html`: extend ETT's `page` layout
+- `_includes/kit-*.html`: story line, kind badge, CPP chips, CPP panel, crosswalk, prev/next, status
+- `_sass/`: EDEN teal `#008691` and pink `#eb5d81`, Lexend + Inter
+- `assets/js/custom.js`: landing-page filters and CPP highlighting
+- `var/sync_cpps.py`: mirrors WP1's CPPs into `_data/cpps.json` and regenerates `pages/cpps/`
+  (via `var/make_cpp_pages.py`); `.github/workflows/sync-cpps.yml` runs it every Monday and opens a PR on changes
 
-## Tag Management & Filtering
+Run locally (Ubuntu/Debian):
 
-- Global Tag Cloud: Dynamically generates a cloud of tags based on the modules available within the currently selected track.
-- Visual Tag Suggestions: Scans the tag cloud while you type in the search bar. If a tag partially matches your query, it automatically receives a CSS class (tag-suggestion-highlight) to hint at relevant topics.
-- Independent Tag Filtering: Clicking a tag isolates modules containing that tag. The tag filter works together with the search input instead of overwriting it.
-- Track Buttons: Fast filters that narrow down the content list based on main discipline/track buttons.
-- Toggle Tag Visibility: Supports a checkbox (#tagToggleCheckbox) to hide or display the entire global tag cloud based on user preference.
+```bash
+sudo apt install ruby-full ruby-dev build-essential zlib1g-dev libyaml-dev
+bundle config set --local path vendor/bundle   # already set in .bundle/config
+bundle install
+bundle exec jekyll serve --livereload           # http://127.0.0.1:4000
+```
 
-## Data Ingestion & Parsing
+Gems install into `vendor/bundle` (no sudo, excluded from the build).
+ Deploy with the
+GitHub Actions workflow from `elixir-toolkit-theme-example` (`.github/workflows/jekyll.yml`).
 
-- Asynchronous Parallel Loading: Fetches external .md files in the background using a controlled queue (runWithConcurrency), capped at a maximum of 4 simultaneous requests to protect the server.
-- Flexible Ingestion Formats: Accepts module text sources as plain text, URL strings, or structured JSON objects (article.text.text).
-- Robust Front-Matter Parser: Scans the top of Markdown files for YAML-like metadata blocks (e.g., --- title: Name ---), extracts them automatically, and converts bracketed lists (like [tag1, tag2]) into proper JavaScript arrays.
+Draft content: the user stories and kinds were drafted from the articles and need author sign-off.
 
-## Rendering & Content Injection
+## Linking modules to Core Preservation Processes
 
-- Markdown-to-HTML: Utilizes markdown-it to render rich text with HTML capabilities and automatic link conversion.
-- Safe DOM Highlighting: When a module is expanded, it scans the actual text nodes in the DOM tree to highlight search keywords without breaking internal HTML tags or corrupting the markdown structure.
-- Dynamic Heading IDs: Generates unique, URL-safe header IDs (slugify) for all headings inside an expanded module to prevent ID collisions between different files.
-- Internal Anchor Rewriting: Automatically rewrites standard anchor tags (href="#section") so they point directly to the correct heading within that specific expanded module container.
+- `cpps`: every WP1 process the module applies.
+- `cpps_primary`: the 1–3 processes it mainly teaches (each must also be in `cpps`).
+  CPP pages list these first under "Start here"; the rest are grouped by role
+  under "Also applied in", so a process cited by dozens of modules stays readable.
+- `story.task`: a short label (under ~45 characters) for the home-page picker.
 
-## UX, Navigation & Routing
+Run `python3 var/check_modules.py` before committing; CI runs it before every build.
 
-- Step-by-Step Learning Paths: Displays a dynamic "Next module" button based on track and order, letting users seamlessly progress through the course content.
-- URL Synchronization (Routing): Keeps search strings (?q=), track filters (?track=), tags (?tag=), and the active module (?id=) in sync with the browser address bar. It utilizes popstate so browser forward/backward navigation works perfectly.
-- Deep Heading Linking: Supports deep links (e.g., ?id=module-1#introduction), automatically scrolling to the module, expanding it, and smoothly moving down to the targeted section header.
-- Share Link Generator: A button inside expanded modules copies a complete direct link to the clipboard and gives instant visual feedback ("Link copied! ✔").
-- One-Click Reset: A dedicated reset button completely clears the search field, removes active tag/track filters, and resets the URL parameters in one click.
-- Pagination (Load More): Displays up to 10 modules at a time and automatically hides or shows the "Load More" button based on how many modules remain.
+## Writing a module in Google Docs (no code needed)
 
+1. Copy the Google Doc "EDEN Support-kit – module template (v2)" (File > Make a copy).
+   "EDEN Support-kit – example module (Preparing deposits)" shows one filled in.
+2. Fill in the metadata table and write under "Module content". Share with colleagues for comments as usual.
+3. When it is ready, move the Doc into the Drive folder **EDEN Support-kit – ready for the kit**.
 
-## The use of Markdown-it is in this solution based on their provided MIT License for the markdown-it javascript, as follows:
+Within the hour a pull request appears in this repository, and the author gets a comment
+in the Doc with its link. Later edits to the Doc update the same pull request. Reviewers
+merge it; the author never touches GitHub.
 
-https://github.com/markdown-it/markdown-it?tab=MIT-1-ov-file 
+**What blocks, what doesn't.** Only a Doc with no title (or with the template's two
+section headings deleted) is held back, with a comment telling the author. Everything
+else goes through with a sensible default and is listed in the pull request under
+"Points to check" (label `needs-attention`) and in the author's comment:
 
-"Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin.
+| In the Doc | What happens |
+|---|---|
+| Role empty or unclear | Filed under Getting started (for every role) |
+| Kind of help empty | No kind badge until it is set |
+| "I want to" empty | Listed without its user story |
+| Process typed as a name ("virus scan") | Matched to CPP-007 Virus Scanning, flagged so the reviewer can confirm |
+| Unknown process, framework or related module | Left out, flagged |
+| More than 3 main processes | First 3 kept as main, the rest count as "applies" |
+| Same title as another Doc's module | Saved as `<page_id>_2`, flagged |
+| Title or role changed later | The old page is replaced (the Doc id is stored as `gdoc:` in the page) |
 
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
+`var/check_modules.py` also only reports: findings show up as annotations on the build,
+and one module with a problem never stops the site from publishing. Run it with
+`--strict` if you want it to fail locally.
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+### Dropdowns in the template (2 minutes, done once in the template)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE."
+Copies inherit dropdowns, and the converter reads the chosen text. In the template, click the
+value cell and use Insert > Dropdown, then save each as a preset so it can be reused:
 
+| Row | Options |
+|---|---|
+| Role | Researcher · Repository manager · RDM trainer · Every role |
+| Kind of help | Get it done (how-to) · Learn by doing (tutorial) · Look it up (reference) · Understand why (explanation) |
+| Main process 1, 2, 3 | the 30 WP1 processes as "010 · File Format Validation" (one row each; leave unused rows on the placeholder) |
+| Status | Draft · Ready for review |
 
+Rows called "Main process 1/2/3" (or "Other process 1/2/…") are combined into one list, so the
+template can offer one dropdown per process. Typed values still work: names, numbers, "CPP-010",
+"CoreTrustSeal R14" are all understood.
+
+### Google Docs to pull request: setup (once, by a repository admin)
+
+1. **Service account.** In Google Cloud console: create a project, enable the *Google Drive API*,
+   create a service account, and add a JSON key.
+2. **Share the folder** "EDEN Support-kit – ready for the kit" with the service account's
+   e-mail address as **Commenter** (it reads the Docs and leaves feedback comments).
+3. **GitHub secret** `GDRIVE_SA_KEY`: the whole JSON key (Settings > Secrets and variables > Actions).
+4. **GitHub variable** `GDRIVE_READY_FOLDER`: the folder ID, the last part of its URL.
+5. **Allow Actions to open pull requests:** Settings > Actions > General > Workflow permissions >
+   "Allow GitHub Actions to create and approve pull requests".
+6. Optional: a secret `KIT_BOT_TOKEN` (fine-grained token, or a GitHub App token, with
+   contents and pull-requests write) so the site build check also runs on these pull requests.
+   Pull requests opened with the default token don't trigger other workflows.
+
+Test it with Actions > Google Docs to pull request > Run workflow, pasting one Doc link.
+Without the service account, a manual run still works for a Doc shared as
+"anyone with the link can view".
+
+### By hand
+
+```bash
+python3 var/gdoc_to_module.py ~/Downloads/my-module.md            # writes pages/<role>/<page_id>.md
+python3 var/gdoc_to_module.py ~/Downloads/my-module.md --stdout   # preview without writing
+python3 var/make_sidebar.py                                       # refresh the sidebar for local preview
+```
+
+The converter maps the table to front matter, cleans Google's Markdown export (bold headings,
+lists exported as quotes, backslash escapes, bare URLs, inline images) and turns the bullets
+under "Recommendations" into a checklist. The sidebar's module lists are generated from the
+pages by `var/make_sidebar.py` (CI runs it before each build), so new modules never need a
+sidebar edit and parallel pull requests don't conflict.

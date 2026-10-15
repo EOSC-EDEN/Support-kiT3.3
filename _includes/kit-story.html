@@ -1,0 +1,18 @@
+{%- comment -%}
+  The user story as a subtitle: who it's for, what they want, and why.
+  The module title (the page's h1, or the row title on the home page) stays the anchor.
+{%- endcomment -%}
+{%- assign ks = include.story -%}
+{%- if ks and ks.want -%}
+{%- case ks.as -%}
+{%- when "researcher" -%}{%- assign ks_who = "As a researcher" -%}
+{%- when "manager" -%}{%- assign ks_who = "As a repository manager" -%}
+{%- when "trainer" -%}{%- assign ks_who = "As an RDM trainer" -%}
+{%- else -%}{%- assign ks_who = "As anyone using the kit" -%}
+{%- endcase -%}
+{%- if include.variant == "compact" -%}
+<p class="story-line story-compact">I want to <span class="story-want">{{ ks.want }}</span>{% if ks.so_that %}, so that {{ ks.so_that }}{% endif %}.</p>
+{%- else -%}
+<p class="story-line{% if include.variant %} story-{{ include.variant }}{% endif %}">{{ ks_who }}, I want to <span class="story-want">{{ ks.want }}</span>{% if ks.so_that %}, so that {{ ks.so_that }}{% endif %}.</p>
+{%- endif -%}
+{%- endif -%}

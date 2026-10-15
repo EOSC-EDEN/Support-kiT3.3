@@ -1,0 +1,28 @@
+# Frameworks a module can cite in `satisfies`. `wp1` is the name WP1 uses in its
+# CPP mappings, so crosswalks derived from CPPs can be labelled consistently.
+- id: cts-2023
+  label: CoreTrustSeal 2023–2025
+  wp1: CoreTrustSeal
+  url: https://doi.org/10.5281/zenodo.7051012
+- id: cts-2026
+  label: CoreTrustSeal 2026–2028
+  url: https://doi.org/10.5281/zenodo.17660463
+- id: nestor
+  label: nestor Seal (DIN 31644)
+  wp1: Nestor Seal
+  url: https://d-nb.info/135630141X/34
+- id: iso-16363
+  label: ISO 16363
+  wp1: ISO 16363
+  url: https://www.iso.org/standard/87472.html
+- id: oais
+  label: OAIS
+  wp1: OAIS
+  url: https://ccsds.org/searchpubs/?gv_search=oais
+- id: premis
+  label: PREMIS
+  wp1: PREMIS
+  url: https://www.loc.gov/standards/premis/v3/premis-3-0-final.pdf
+- id: eosc-tf-fm
+  label: EOSC-A TF FAIR Metrics & Digital Objects
+  url: https://doi.org/10.5281/zenodo.19431150

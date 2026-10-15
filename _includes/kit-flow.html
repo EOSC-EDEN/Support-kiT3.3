@@ -1,0 +1,277 @@
+{%- comment -%}
+  Interactive walkthrough of how a module gets into the kit: Google Doc → ready folder →
+  hourly workflow → pull request → site. Self-contained: markup here, styles under
+  .kit-flow in _custom_classes.scss. Used on pages/contribute.md.
+{%- endcomment -%}
+<div class="kit-flow" id="kit-flow">
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Scenario">
+      <button type="button" id="kf-sc-happy" data-sc="happy" aria-pressed="true">Ready first time</button>
+      <button type="button" id="kf-sc-fix" data-sc="fix" aria-pressed="false">Needs a fix</button>
+      <button type="button" id="kf-sc-review" data-sc="review" aria-pressed="false">Changes after review</button>
+    </div>
+    <div class="stepper">
+      <button type="button" id="kf-prev" aria-label="Previous step">← Back</button>
+      <span class="count" id="kf-count" aria-live="polite"></span>
+      <button type="button" id="kf-next" aria-label="Next step">Next →</button>
+    </div>
+  </div>
+
+  <div class="flow-main">
+    <div class="board" id="kf-board">
+      <div class="lanes" id="kf-lanes"></div>
+    </div>
+    <ol class="timeline" id="kf-timeline"></ol>
+    <aside class="panel" id="kf-panel" aria-live="polite"></aside>
+  </div>
+  <div class="legend">
+    <span><i></i>Main path</span>
+    <span><i class="loop"></i>Fix loop: back to the author</span>
+    <span><i class="review"></i>Review loop: changes go into the Doc</span>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <h3 class="no-anchor">What authors need</h3>
+      <ul>
+        <li>A copy of <b>EDEN Support-kit – module template (v2)</b></li>
+        <li>Access to the folder <b>EDEN Support-kit – ready for the kit</b></li>
+        <li>Nothing else: no GitHub account, no Markdown, no scripts. Dropdowns for role, kind and processes; names work as well as IDs</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3 class="no-anchor">What runs in the repository</h3>
+      <ul>
+        <li><code>gdocs-to-pr.yml</code>: hourly at :17, or run by hand with one Doc link</li>
+        <li><code>gdoc_to_module.py</code>: metadata table → front matter, cleans the export</li>
+        <li><code>check_modules.py</code> (reports, never blocks) and <code>make_sidebar.py</code>: run before every site build</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3 class="no-anchor">One-time setup (repository admin)</h3>
+      <ol>
+        <li>Google service account with the Drive API on</li>
+        <li>Share the folder with it as <b>Commenter</b></li>
+        <li>GitHub secret <code>GDRIVE_SA_KEY</code>, variable <code>GDRIVE_READY_FOLDER</code></li>
+        <li>Allow Actions to open pull requests; optional <code>KIT_BOT_TOKEN</code> so builds run on them</li>
+      </ol>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const LANES = [
+    { id: "author", label: "Author · Google Docs", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>' },
+    { id: "bot", label: "Automation · GitHub Actions", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>' },
+    { id: "review", label: "Reviewers · pull request", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M6 8.5v7M18 15.5V9a3 3 0 0 0-3-3h-4"/><path d="m13 4-2 2 2 2"/></svg>' },
+    { id: "site", label: "Website", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>' },
+  ];
+
+  // Every step, its lane and its row in the diagram. `see` is what the person actually sees at that moment.
+  const STEPS = {
+    write:   { lane: "author", row: 1, title: "Write in a copy of the template", text: "Metadata table, then the module", when: "Google Docs",
+      body: "The author fills in the metadata table (role, user story, kind of help, processes) and writes the module under “Module content”. Colleagues comment and suggest in the Doc as usual.",
+      see: { kind: "code", text: "Title          Preparing deposits\nRole           researcher\nI want to      prepare my files for deposit…\nKind of help   how-to\nMainly teaches CPP-010, CPP-001" } },
+    move:    { lane: "author", row: 2, title: "Move the Doc to “ready for the kit”", text: "Drag it into the shared Drive folder", when: "the hand-off",
+      body: "Moving the Doc into the folder EDEN Support-kit – ready for the kit is the only signal the author gives. The Doc stays theirs and stays editable." },
+    scan:    { lane: "bot", row: 3, title: "Hourly check of the folder", text: "New to the kit, or edited since the last run", when: "every hour at :17",
+      body: "The workflow picks the Docs in the folder that were edited in the last hour, plus any the kit has never seen (no page and no open pull request), so a Doc written last week and moved in today is not missed. Anyone with repository access can also run it at once with a single Doc link.",
+      see: { kind: "code", text: "Google Docs to pull request\n  find     2 Doc(s) to process\n  module   Preparing deposits\n  module   Choosing file formats" } },
+    convert: { lane: "bot", row: 4, title: "Export as Markdown and convert", text: "Table → front matter, export cleaned", when: "gdoc_to_module.py",
+      body: "Google’s Markdown export is turned into a module page: the table becomes front matter, bold headings and quoted lists are cleaned, bare links become links, and the Recommendations bullets become a checklist readers can tick.",
+      see: { kind: "code", text: "---\ntitle: Preparing deposits – file formats …\nkind: how-to\nstory:\n  as: researcher\n  want: prepare my files for deposit, …\ncpps_primary: [CPP-010, CPP-001]\n---" } },
+    check:   { lane: "bot", row: 5, title: "Does it have a title?", text: "The only thing that holds a Doc back", decision: true, when: "checks",
+      body: "Only a Doc without a title (or with the template’s two section headings deleted) is held back. Everything else goes through with a sensible default and is listed for the reviewer: an empty role files the module under Getting started, a process typed as a name is matched and flagged, unknown values are left out.",
+      see: { kind: "code", text: "Points to check (label needs-attention)\n• read `virus scan` as CPP-007 Virus Scanning\n• Kind of help is empty; no badge until set\n• Contributor `New Person` not in the list yet" } },
+    fixnote: { lane: "author", row: 6, title: "Comment in the Doc: add a title", text: "Posted once, not every hour", fix: true, when: "within the hour",
+      body: "The service account leaves a comment in the Doc listing what to fix, in plain words. The author edits the Doc; that edit is picked up in the next hourly run.",
+      see: { kind: "comment", by: "EDEN Support-kit bot", text: "The support-kit could not take this module yet. Please fix this in the Doc; it is checked again within the hour.\n\n• Title is empty. Give the module a name in the first row of the metadata table." } },
+    pr:      { lane: "review", row: 6, title: "Pull request opened or updated", text: "One per Doc, branch gdocs/&lt;doc id&gt;", when: "same run",
+      body: "Each Doc gets its own pull request with a link back to the Doc, the points to check and a short review checklist; it is labelled needs-attention when defaults were used. A later edit to the same Doc, even a new title or role, updates the same pull request.",
+      see: { kind: "pr", t: "Module: Preparing deposits – file formats and technical data quality", b: "gdocs/1FBlwyqk… → main · from-google-docs",
+        text: "☐ The user story reads well and the title is the task\n☐ Processes it mainly teaches (1–3) are right\n☐ References have working links\n☐ Preview looks right" } },
+    sent:    { lane: "author", row: 7, title: "Comment in the Doc: sent for review", text: "With the link, once", when: "same run",
+      body: "When the pull request is first opened, the author gets one comment with its link. They can follow the review there or simply keep editing the Doc.",
+      see: { kind: "comment", by: "EDEN Support-kit bot", text: "Sent to the support-kit for review: github.com/EOSC-EDEN/support-kit3.3/pull/42\nKeep editing here; changes to this Doc update the review automatically.\n\nA few things the reviewers will check (you can fix them here):\n• read `virus scan` as CPP-007 Virus Scanning; check this is right" } },
+    ask:     { lane: "review", row: 8, title: "Review: ask for changes", text: "Comments go to the author, edits go in the Doc", review: true, when: "reviewers",
+      body: "Reviewers comment on the pull request or tell the author directly. Changes are made in the Google Doc, never in the branch, so the Doc stays the single source and the next run updates the pull request." },
+    merge:   { lane: "review", row: 9, title: "Approve and merge", text: "Into the kit branch (ett, later main)", when: "reviewers",
+      body: "Once the checklist is done the pull request is merged. Nothing else to do by hand: the sidebar and indexes are generated during the build." },
+    build:   { lane: "site", row: 10, title: "Site build", text: "check_modules → make_sidebar → Jekyll + ETT", when: "on merge",
+      body: "The site workflow reviews every module’s metadata and reports findings as notes on the build, without stopping it, then rebuilds the sidebar’s module lists from the pages and builds the site with the ELIXIR Toolkit Theme.",
+      see: { kind: "code", text: "Check module front matter   1 note (does not block)\nBuild the sidebar           2 section(s) updated\nBuild with Jekyll           done\nDeploy to GitHub Pages      done" } },
+    live:    { lane: "site", row: 11, title: "Live on the support-kit", text: "Role path, process pages, search", when: "minutes later",
+      body: "The module appears in its role’s path, on the pages of the processes it teaches, in the home page’s “I want to …” picker and in search." },
+  };
+  // Re-entries during loops reuse a step (the author edits the same Doc).
+  const SCENARIOS = {
+    happy:  ["write", "move", "scan", "convert", "check", "pr", "sent", "merge", "build", "live"],
+    fix:    ["write", "move", "scan", "convert", "check", "fixnote", "write", "scan", "convert", "check", "pr", "sent", "merge", "build", "live"],
+    review: ["write", "move", "scan", "convert", "check", "pr", "sent", "ask", "write", "scan", "convert", "check", "pr", "merge", "build", "live"],
+  };
+  const EDGES = [
+    ["write", "move"], ["move", "scan"], ["scan", "convert"], ["convert", "check"],
+    ["check", "pr"], ["check", "fixnote"], ["pr", "sent"], ["sent", "merge"], ["pr", "merge"], ["merge", "build"], ["build", "live"],
+    ["fixnote", "write", "loop"], ["write", "scan"], ["ask", "write", "review"], ["sent", "ask"], ["pr", "ask"],
+  ];
+  const laneOf = id => LANES.find(l => l.id === STEPS[id].lane);
+
+  let sc = "happy", idx = 0;
+  const $ = s => document.querySelector(s);
+  const lanesEl = $("#kf-lanes"), board = $("#kf-board"), panel = $("#kf-panel"), timeline = $("#kf-timeline");
+
+  // Build the swimlane board
+  LANES.forEach((l, i) => {
+    const h = document.createElement("div");
+    h.className = "lane-head"; h.style.gridColumn = i + 1; h.style.gridRow = 1;
+    h.innerHTML = l.icon + "<span>" + l.label + "</span>";
+    lanesEl.append(h);
+    const bg = document.createElement("div");
+    bg.className = "lane-bg"; bg.style.gridColumn = i + 1;
+    lanesEl.append(bg);
+  });
+  const nodes = {};
+  Object.entries(STEPS).forEach(([id, s]) => {
+    const n = document.createElement("div");
+    n.className = "node" + (s.decision ? " decision" : "") + (s.fix ? " fix" : "");
+    n.tabIndex = 0; n.setAttribute("role", "button");
+    n.style.gridColumn = LANES.findIndex(l => l.id === s.lane) + 1;
+    n.style.gridRow = s.row + 1;
+    n.innerHTML = "<h3 class=\"no-anchor\">" + s.title + "</h3><p>" + s.text + "</p><span class=\"when\">" + s.when + "</span>";
+    const go = () => { const p = SCENARIOS[sc]; let j = p.indexOf(id, Math.max(0, idx)); if (j < 0) j = p.indexOf(id); if (j >= 0) { idx = j; render(); } };
+    n.addEventListener("click", go);
+    n.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    lanesEl.append(n); nodes[id] = n;
+  });
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("class", "edges"); svg.setAttribute("aria-hidden", "true");
+  lanesEl.prepend(svg);
+  const paths = EDGES.map(([a, b, type]) => {
+    const p = document.createElementNS(svgNS, "path");
+    if (type) p.classList.add("loop");
+    if (type === "review") p.classList.add("review");
+    svg.append(p);
+    return { a, b, type, p };
+  });
+
+  // Orthogonal connectors: try a few simple routes and keep the first that crosses no other card.
+  function drawEdges() {
+    const base = lanesEl.getBoundingClientRect();
+    svg.setAttribute("width", lanesEl.scrollWidth); svg.setAttribute("height", lanesEl.scrollHeight);
+    const rect = id => { const r = nodes[id].getBoundingClientRect(); return { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height }; };
+    const R = Object.fromEntries(Object.keys(nodes).map(id => [id, rect(id)]));
+    const hits = (pts, skip) => {
+      for (let i = 0; i < pts.length - 1; i++) {
+        const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+        const lx = Math.min(x1, x2) - 1, hx = Math.max(x1, x2) + 1, ly = Math.min(y1, y2) - 1, hy = Math.max(y1, y2) + 1;
+        for (const [id, r] of Object.entries(R)) {
+          if (skip.includes(id)) continue;
+          if (hx > r.x + 2 && lx < r.x + r.w - 2 && hy > r.y + 2 && ly < r.y + r.h - 2) return true;
+        }
+      }
+      return false;
+    };
+    const rounded = pts => {
+      let d = `M${pts[0][0]},${pts[0][1]}`;
+      for (let i = 1; i < pts.length - 1; i++) {
+        const [px, py] = pts[i - 1], [x, y] = pts[i], [nx, ny] = pts[i + 1];
+        const r = Math.min(10, Math.hypot(x - px, y - py) / 2, Math.hypot(nx - x, ny - y) / 2);
+        const ax = x - Math.sign(x - px) * r, ay = y - Math.sign(y - py) * r;
+        const bx = x + Math.sign(nx - x) * r, by = y + Math.sign(ny - y) * r;
+        d += ` L${ax},${ay} Q${x},${y} ${bx},${by}`;
+      }
+      const [lx, ly] = pts[pts.length - 1];
+      return d + ` L${lx},${ly}`;
+    };
+    paths.forEach(({ a, b, type, p }) => {
+      const A = R[a], B = R[b], skip = [a, b];
+      const acx = A.x + A.w / 2, acy = A.y + A.h / 2, bcx = B.x + B.w / 2, bcy = B.y + B.h / 2;
+      const right = bcx > acx, sameLane = Math.abs(acx - bcx) < 4;
+      let cands = [];
+      if (type) {                                   // loops back up, along the gutter left of the source
+        const gx = A.x - 9;
+        const tx = sameLane ? B.x : B.x + B.w;
+        cands = [[[A.x, acy], [gx, acy], [gx, bcy], [tx, bcy]]];
+        if (sameLane) cands = [[[A.x, acy], [gx, acy], [gx, bcy], [B.x, bcy]]];
+      } else if (sameLane) {
+        cands = [
+          [[acx, A.y + A.h], [bcx, B.y]],
+          [[A.x + A.w, acy], [A.x + A.w + 9, acy], [B.x + B.w + 9, bcy], [B.x + B.w, bcy]],
+        ];
+      } else if (Math.abs(acy - bcy) < 30) {        // side by side
+        cands = [[[right ? A.x + A.w : A.x, acy], [right ? B.x : B.x + B.w, bcy]]];
+        cands[0].splice(1, 0, [(cands[0][0][0] + cands[0][1][0]) / 2, acy], [(cands[0][0][0] + cands[0][1][0]) / 2, bcy]);
+      } else {
+        cands = [
+          [[right ? A.x + A.w : A.x, acy], [bcx, acy], [bcx, B.y]],                       // across, then down
+          [[acx, A.y + A.h], [acx, bcy], [right ? B.x : B.x + B.w, bcy]],                 // down, then across
+          [[acx, A.y + A.h], [acx, A.y + A.h + 9], [bcx, A.y + A.h + 9], [bcx, B.y]],     // short drop, across, down
+        ];
+      }
+      const pts = cands.find(c => !hits(c, skip)) || cands[0];
+      p.setAttribute("d", rounded(pts));
+    });
+  }
+
+  function seeHTML(s) {
+    if (!s.see) return "";
+    const v = s.see, esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    let inner = "";
+    if (v.kind === "comment") inner = `<div class="artefact comment"><span class="by">${esc(v.by)} · comment</span>${esc(v.text)}</div>`;
+    else if (v.kind === "pr") inner = `<div class="artefact pr"><span class="t">${esc(v.t)}</span><span class="b">${esc(v.b)}</span>${esc(v.text)}</div>`;
+    else inner = `<div class="artefact code">${esc(v.text)}</div>`;
+    const label = v.kind === "comment" ? "What the author sees in the Doc" : v.kind === "pr" ? "What reviewers see" : "What it looks like";
+    return `<div class="see"><div class="see-label">${label}</div>${inner}</div>`;
+  }
+
+  function render() {
+    const path = SCENARIOS[sc], id = path[idx], s = STEPS[id];
+    const seen = new Set(path.slice(0, idx));
+    const inScenario = new Set(path);
+    Object.entries(nodes).forEach(([k, n]) => {
+      n.classList.toggle("is-dim", !inScenario.has(k));
+      n.classList.toggle("is-done", seen.has(k) && k !== id);
+      n.classList.toggle("is-active", k === id);
+      let tag = n.querySelector(".tag");
+      if (k === id) { if (!tag) { tag = document.createElement("span"); tag.className = "tag"; n.append(tag); } tag.textContent = "Step " + (idx + 1); }
+      else if (tag) tag.remove();
+    });
+    const walked = new Set();
+    for (let i = 0; i < idx; i++) walked.add(path[i] + ">" + path[i + 1]);
+    paths.forEach(({ a, b, p }) => p.classList.toggle("on", walked.has(a + ">" + b)));
+
+    panel.className = "panel" + (s.fix ? " fix" : "");
+    panel.innerHTML = `<span class="who">${laneOf(id).label}</span><h2 class="no-anchor">${s.title}</h2><p>${s.body}</p>${seeHTML(s)}
+      <div class="path" aria-hidden="true">${path.map((p, i) => `<span class="${STEPS[p].fix ? "fixdot " : ""}${i < idx ? "done" : i === idx ? "now" : ""}" title="${STEPS[p].title}"></span>`).join("")}</div>`;
+
+    timeline.innerHTML = path.map((p, i) => `<li class="${i < idx ? "done" : i === idx ? "now" : ""}${STEPS[p].fix ? " fix" : ""}" data-i="${i}">
+      <span class="dot">${i + 1}</span><div class="card"><small>${laneOf(p).label}</small><b>${STEPS[p].title}</b></div></li>`).join("");
+
+    $("#kf-count").textContent = `${idx + 1} / ${path.length}`;
+    $("#kf-prev").disabled = idx === 0;
+    $("#kf-next").disabled = idx === path.length - 1;
+    document.querySelectorAll("#kit-flow [data-sc]").forEach(b => b.setAttribute("aria-pressed", b.dataset.sc === sc ? "true" : "false"));
+  }
+
+  timeline.addEventListener("click", e => { const li = e.target.closest("li"); if (li) { idx = +li.dataset.i; render(); } });
+  document.querySelectorAll("#kit-flow [data-sc]").forEach(b => b.addEventListener("click", () => { sc = b.dataset.sc; idx = 0; render(); }));
+  $("#kf-prev").addEventListener("click", () => { if (idx > 0) { idx--; render(); } });
+  $("#kf-next").addEventListener("click", () => { if (idx < SCENARIOS[sc].length - 1) { idx++; render(); } });
+  document.getElementById("kit-flow").addEventListener("keydown", e => {
+    if (e.target.closest && e.target.closest("input,textarea,select")) return;
+    if (e.key === "ArrowRight") $("#kf-next").click();
+    if (e.key === "ArrowLeft") $("#kf-prev").click();
+  });
+
+  // Open on the step where the two paths split, so the first view shows the decision.
+  idx = 4;
+  render();
+  const redraw = () => requestAnimationFrame(drawEdges);
+  window.addEventListener("resize", redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+  new ResizeObserver(redraw).observe(lanesEl);
+  redraw();
+})();
+</script>

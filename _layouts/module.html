@@ -1,0 +1,14 @@
+---
+layout: page
+---
+{%- comment -%}
+  Support-kit module. Extends ETT's `page` layout (no theme file is overridden):
+  ETT still adds the TOC, related pages, More-information tiles and contributors.
+  Order: one lead (the user story), one quiet meta line, the content, then how
+  the module connects to EDEN's processes and frameworks.
+{%- endcomment -%}
+{% include kit-story.html story=page.story variant="subtitle" %}
+{% include kit-meta.html p=page %}
+{{ content }}
+{% include kit-connections.html %}
+{% include kit-track-nav.html %}

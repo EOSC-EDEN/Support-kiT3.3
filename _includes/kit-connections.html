@@ -1,0 +1,50 @@
+{%- comment -%}
+  How the module connects to EDEN: the WP1 processes it applies, the frameworks
+  it cites itself, and what WP1 already maps those processes to.
+{%- endcomment -%}
+{%- assign kn_cpps = page.cpps.size | default: 0 -%}
+{%- assign kn_cited = page.satisfies.size | default: 0 -%}
+{%- capture kn_via -%}
+{%- for fw in site.data.frameworks -%}{%- if fw.wp1 -%}
+{%- capture kn_rows -%}{%- for id in page.cpps -%}{%- assign kn_c = site.data.cpps.cpps | where: "id", id | first -%}{%- for m in kn_c.mappings -%}{%- if m.framework == fw.wp1 and m.section != "" -%}<li><span class="cpp-id">{{ id | remove: "CPP-" }}</span> {{ m.section }}</li>{%- endif -%}{%- endfor -%}{%- endfor -%}{%- endcapture -%}
+{%- if kn_rows != "" -%}{%- assign kn_n = kn_rows | split: "<li>" | size | minus: 1 -%}
+<details><summary>{{ fw.label }} <span class="text-secondary">· {{ kn_n }}</span></summary><ul>{{ kn_rows }}</ul></details>
+{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- endcapture -%}
+{%- assign kn_via = kn_via | strip -%}
+{%- if kn_cpps > 0 or kn_cited > 0 %}
+<h2 id="anchored-to">Anchored to</h2>
+<div class="kit-connections">
+  {%- if kn_cpps > 0 %}
+  <div>
+    {%- assign kn_groups = "primary,rest" | split: "," %}
+    {%- for kn_g in kn_groups %}
+    {%- capture kn_items %}{% for id in page.cpps %}{% assign kn_is = false %}{% if page.cpps_primary contains id %}{% assign kn_is = true %}{% endif %}{% if kn_g == "primary" and kn_is %}{% assign kn_show = true %}{% elsif kn_g == "rest" and kn_is == false %}{% assign kn_show = true %}{% else %}{% assign kn_show = false %}{% endif %}{% if kn_show %}{% assign kn_c = site.data.cpps.cpps | where: "id", id | first %}{% assign kn_s = id | downcase | replace: "-", "_" | prepend: "/" %}<li><a href="{{ kn_s | relative_url }}" title="{{ kn_c.shortDefinition | escape }}"><span class="cpp-id">{{ id | remove: "CPP-" }}</span>{{ kn_c.label }}</a></li>{% endif %}{% endfor %}{% endcapture %}
+    {%- if kn_items != "" %}
+    <h3 class="conn-title">{% if kn_g == "primary" %}Teaches{% elsif page.cpps_primary.size > 0 %}Also applies{% else %}Core Preservation Processes{% endif %}</h3>
+    <ul class="cpp-compact{% if kn_g == 'primary' %} is-primary{% endif %}">{{ kn_items }}</ul>
+    {%- endif %}
+    {%- endfor %}
+  </div>
+  {%- endif %}
+  <div>
+    <h3 class="conn-title">Frameworks</h3>
+    {%- if kn_cited > 0 %}
+    <dl class="fw-list">
+      {%- for fw in site.data.frameworks %}
+      {%- assign kn_hits = page.satisfies | where: "framework", fw.id %}
+      {%- if kn_hits.size > 0 %}
+      {%- assign kn_codes = kn_hits | map: "code" | compact | join: ", " %}
+      <div><dt><a href="{{ fw.url }}">{{ fw.label }}</a></dt><dd>{% if kn_codes != "" %}{{ kn_codes }}{% else %}general reference{% endif %}</dd></div>
+      {%- endif %}
+      {%- endfor %}
+    </dl>
+    {%- endif %}
+    {%- if kn_via != "" %}
+    <p class="conn-sub">Through its processes (WP1 mappings)</p>
+    <div class="via-list">{{ kn_via }}</div>
+    {%- endif %}
+    <p class="conn-more"><a href="{{ '/frameworks' | relative_url }}">All framework crosswalks →</a></p>
+  </div>
+</div>
+{%- endif %}

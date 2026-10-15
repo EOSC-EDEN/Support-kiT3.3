@@ -1,0 +1,13 @@
+{%- assign kt_track = site.pages | where: "type", page.type | where_exp: "kt_p", "kt_p.order != nil" | sort: "order" -%}
+{%- assign kt_prev = nil -%}{%- assign kt_next = nil -%}{%- assign kt_i = nil -%}
+{%- for kt_p in kt_track -%}{%- if kt_p.url == page.url -%}{%- assign kt_i = forloop.index0 -%}{%- endif -%}{%- endfor -%}
+{%- if kt_i != nil -%}
+  {%- if kt_i > 0 -%}{%- assign kt_pi = kt_i | minus: 1 -%}{%- assign kt_prev = kt_track[kt_pi] -%}{%- endif -%}
+  {%- assign kt_ni = kt_i | plus: 1 -%}{%- assign kt_next = kt_track[kt_ni] -%}
+{%- endif -%}
+{%- if kt_prev or kt_next %}
+<nav class="track-nav" aria-label="Previous and next module in this track">
+  {% if kt_prev %}<a class="track-step prev" href="{{ kt_prev.url | relative_url }}"><span>Previous</span>{{ kt_prev.title }}</a>{% else %}<span></span>{% endif %}
+  {% if kt_next %}<a class="track-step next" href="{{ kt_next.url | relative_url }}"><span>Next</span>{{ kt_next.title }}</a>{% endif %}
+</nav>
+{%- endif %}

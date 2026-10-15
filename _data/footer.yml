@@ -1,0 +1,36 @@
+copyright: 'Content is available under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) unless noted otherwise. **Demo build** for WP3 review this not an official EOSC EDEN publication yet.'
+extra_line:
+columns:
+  - type: text
+    width: 4
+    content: |
+      **EOSC EDEN Support-kit** helps discipline and data-type communities adopt, adapt and extend the EOSC EDEN preservation framework. Task 3.3, Work Package 3.
+  - type: links
+    title: Kit
+    width: 2
+    children:
+      - url_text: Get started
+        url: /navigating_kit
+      - url_text: Core Preservation Processes
+        url: /cpps
+      - url_text: Frameworks
+        url: /frameworks
+  - type: links
+    title: Project
+    width: 2
+    children:
+      - url_text: EOSC EDEN & FIDELIS
+        external_url: https://eden-fidelis.eu
+      - url_text: CPP descriptions (WP1)
+        external_url: https://eosc-eden.github.io/wp1-cpp-descriptions/
+      - url_text: Source on GitHub
+        external_url: https://github.com/EOSC-EDEN/support-kit3.3
+  - type: image
+    image_width: 90px
+    width: 1
+    src: 'assets/img/Flag_of_Europe.svg'
+    alt: Flag of the European Union
+  - type: text
+    width: 3
+    content: |
+      Funded by the European Union under Horizon Europe grant agreement [101188015](https://cordis.europa.eu/project/id/101188015).

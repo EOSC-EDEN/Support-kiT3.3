@@ -1,0 +1,6 @@
+{%- comment -%} One module as a compact row: title, then kind (and role when asked). {%- endcomment -%}
+{%- assign mr_p = include.p -%}
+<li><a href="{{ mr_p.url | relative_url }}">{{ mr_p.title }}</a>
+{%- if include.role -%}{%- assign mr_as = mr_p.story.as | default: "anyone" -%}{%- assign mr_r = site.data.roles | where: "id", mr_as | first -%}
+<span class="mr-role">{% if mr_r %}{{ mr_r.plural }}{% else %}Every role{% endif %}</span>{%- endif -%}
+{% include kit-kind-badge.html kind=mr_p.kind %}</li>

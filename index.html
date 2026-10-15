@@ -1,97 +1,209 @@
-<!DOCTYPE html>
+---
+title: Home
+search_exclude: true
+layout: none
+sidebar: main
+---
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Support kit modules with </title>
-    
-    <!-- Link to your custom stylesheet -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- 1. Last inn kjernebiblioteket for Markdown -->
-    <script src="markdown-it.min.js"></script>
-</head>
+{% include head.html %}
 <body>
-    <!-- Main Navigation Bar -->
-    <header class="main-header">
-        <div class="header-container">
-            <h1>
-    EOSC EDEN Support kit (demo)
-</h1>
-        </div>
-    </header>
-
-    <!-- Omgivende layout-beholder -->
-    <div class="layout-container">
-        
-        <!-- Sidemeny med kontroller og filtrering -->
-        <aside class="control-panel">
-            
-            <!-- 1. Role Selection Button Row (Learning Paths) -->
-            <div class="filter-buttons-wrapper">
-                <button class="filter-btn active" data-track="all">Info (All Tracks)</button>
-                <button class="filter-btn" data-track="managers">Repository & Archive Managers</button>
-                <button class="filter-btn" data-track="researchers">Researchers</button>
-                <button class="filter-btn" data-track="trainers">RDM Trainers</button>
-                <button class="filter-btn" data-track="ztools">Tools</button>
+    {% include topnav.html search=false %}
+    <div class="landingpage">
+        <section class="container g-lg-5 hero text-center">
+            <h1>What do you <span>want to do?</span></h1>
+            {%- comment -%}
+              The kit's own model, as a sentence: "I'm a [role] and I want to [task]".
+              Built from each module's `story.as` and `story.task` (falls back to `story.want`).
+              Without JavaScript the picker stays hidden and the list below does the job.
+            {%- endcomment -%}
+            {%- assign pick = site.pages | where: "layout", "module" | sort: "order" %}
+            <form class="story-picker d-none" id="story-picker" aria-label="Find guidance by role and task">
+                <span class="sp-text">I'm</span>
+                <label class="visually-hidden" for="sp-role">Your role</label>
+                <select id="sp-role" class="sp-select">
+                    <option value="all">anyone</option>
+                    <option value="researcher">a researcher</option>
+                    <option value="manager">a repository manager</option>
+                    <option value="trainer">an RDM trainer</option>
+                </select>
+                <span class="sp-text">and I want to</span>
+                <label class="visually-hidden" for="sp-task">What you want to do</label>
+                <select id="sp-task" class="sp-select sp-task">
+                    <option value="">choose a task…</option>
+                    {%- for p in pick %}
+                    <option value="{{ p.url | relative_url }}" data-role="{{ p.story.as | default: 'anyone' }}">{{ p.story.task | default: p.story.want }}</option>
+                    {%- endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary sp-go" disabled>Go <i class="icon-arrow-right" aria-hidden="true"></i></button>
+            </form>
+            <p class="sp-or">or search everything</p>
+            <div class="hero-search mx-auto">
+                <form role="search" class="input-group" onsubmit="return false">
+                    <span class="input-group-text" id="search-label"><i class="icon-search"></i></span>
+                    <input type="search" id="search-input" class="search-input form-control bg-white" tabindex="0"
+                        placeholder="Search the support-kit" aria-label="Search the support-kit" autocomplete="off">
+                </form>
+                <div id="search-results" class="search-results"></div>
             </div>
+        </section>
 
-            <!-- 2. Visibility Toggle Switch System for Tags -->
-            <div class="toggle-container">
-                <span class="toggle-label">Show Tag Cloud</span>
-                <label class="switch-track" for="tagToggleCheckbox">
-                    <input type="checkbox" id="tagToggleCheckbox" checked>
-                    <span class="switch-slider"></span>
-                </label>
+        {%- assign tracks = "Getting_started,Researchers,Repository_managers,RDM_trainers" | split: "," %}
+        {%- capture allcpps -%}{%- for p in site.pages -%}{%- if p.layout == "module" -%}{{ p.cpps | join: " " }} {% endif -%}{%- endfor -%}{%- endcapture -%}
+        {%- assign usedcpps = allcpps | split: " " | uniq | sort %}
+
+        {%- comment -%}
+          Paths: one card per role, plus the shared ground. Each card is the role's ordered
+          route through the kit, and a strip of WP1's 30 processes showing which ones that
+          route touches. Gaps in a strip are gaps in the kit.
+        {%- endcomment -%}
+        {%- assign mods = site.pages | where: "layout", "module" | sort: "order" %}
+        {%- assign allcpp = site.data.cpps.cpps %}
+        {%- assign cats = allcpp | map: "logical" | uniq %}
+        <section class="paths-section" aria-labelledby="paths-title">
+            <div class="container g-lg-5">
+                <div class="paths-head">
+                    <h2 class="no-anchor" id="paths-title">Find your path</h2>
+                    <p>Pick the role closest to yours. Each path is a short, ordered route through the kit.</p>
+                </div>
+                <div class="paths-grid">
+                                        <article class="path-card is-shared">
+                        <div class="path-top"><i class="icon-users" aria-hidden="true"></i><h3 class="no-anchor"><a href="{{ '/navigating_kit' | relative_url }}">Everyone</a></h3></div>
+                        <p class="path-blurb">Start here. Shared ground for every role.</p>
+                        {%- assign si = 0 %}
+                        <ol class="path-steps">
+                            {%- for p in mods %}{% assign pas = p.story.as | default: "anyone" %}{% if pas == "anyone" %}{% assign si = si | plus: 1 %}{% if si <= 4 %}
+                            <li><a href="{{ p.url | relative_url }}">{{ p.title }}</a></li>
+                            {%- endif %}{% endif %}{% endfor %}
+                        </ol>
+                        {%- if si > 4 %}{% assign more = si | minus: 4 %}
+                        <a class="path-more" href="{{ '/navigating_kit' | relative_url }}">+ {{ more }} more for everyone</a>
+                        {%- endif %}
+                        <a class="path-filter" href="{{ '/navigating_kit' | relative_url }}">Start here <i class="icon-arrow-right" aria-hidden="true"></i></a>
+                    </article>
+                    {%- for r in site.data.roles %}
+                    {%- capture rcpps %}{% for p in mods %}{% if p.story.as == r.id %}{{ p.cpps | join: " " }} {% endif %}{% endfor %}{% endcapture %}
+                    {%- assign rlist = rcpps | split: " " | uniq %}
+                    {%- capture rprim %}{% for p in mods %}{% if p.story.as == r.id %}{{ p.cpps_primary | join: " " }} {% endif %}{% endfor %}{% endcapture %}
+                    {%- assign plist = rprim | split: " " | uniq %}
+                    <article class="path-card" data-path="{{ r.id }}">
+                        <div class="path-top"><i class="{{ r.icon }}" aria-hidden="true"></i><h3 class="no-anchor"><a href="{{ r.url | relative_url }}">{{ r.plural }}</a></h3></div>
+                        <p class="path-blurb">{{ r.blurb }}</p>
+                        {%- comment -%} A path card shows where to start, not the whole path: first four steps, then a count. {%- endcomment -%}
+                        {%- assign si = 0 %}
+                        <ol class="path-steps">
+                            {%- for p in mods %}{% if p.story.as == r.id %}{% assign si = si | plus: 1 %}{% if si <= 4 %}
+                            <li><a href="{{ p.url | relative_url }}">{{ p.title }}</a></li>
+                            {%- endif %}{% endif %}{% endfor %}
+                        </ol>
+                        {%- if si > 4 %}{% assign more = si | minus: 4 %}
+                        <a class="path-more" href="{{ r.url | relative_url }}">+ {{ more }} more in this path</a>
+                        {%- endif %}
+                        {%- comment -%} WP1's 30 processes, grouped by WP1 category: dark = taught in depth, light = applied, grey = not yet covered {%- endcomment -%}
+                        {%- assign n = 0 %}{% assign np = 0 %}
+                        <div class="cpp-strip" aria-hidden="true">
+                            {%- for cat in cats %}{% assign cg = allcpp | where: "logical", cat %}<span class="cpp-group" style="flex:{{ cg.size }}" title="{{ cat }}">
+                            {%- for c in cg %}{% if plist contains c.id %}{% assign n = n | plus: 1 %}{% assign np = np | plus: 1 %}<i class="on is-primary" title="{{ c.id }} {{ c.label }}: taught"></i>{% elsif rlist contains c.id %}{% assign n = n | plus: 1 %}<i class="on" title="{{ c.id }} {{ c.label }}: applied"></i>{% else %}<i title="{{ c.id }} {{ c.label }}: not yet covered"></i>{% endif %}{% endfor %}</span>
+                            {%- endfor %}
+                        </div>
+                        <p class="strip-label">{% if n > 0 %}Covers {{ n }} of {{ allcpp.size }} processes · {{ np }} taught in depth{% else %}No processes linked yet{% endif %}</p>
+                        {%- assign rcount = 0 %}{% for p in mods %}{% if p.story.as == r.id %}{% assign rcount = rcount | plus: 1 %}{% endif %}{% endfor %}
+                        {%- if rcount < 2 or n == 0 %}
+                        <a class="path-invite" href="{{ site.github.repository_url }}/issues/new?title=Idea%20for%20the%20{{ r.plural | url_encode }}%20path">Still being written. Help shape it <i class="icon-arrow-up-right" aria-hidden="true"></i></a>
+                        {%- endif %}
+                        <a class="path-filter" href="?role={{ r.id }}#user-stories" data-set-role="{{ r.id }}">Show their stories <i class="icon-arrow-down" aria-hidden="true"></i></a>
+                    </article>
+                    {%- endfor %}
+                </div>
             </div>
+        </section>
 
-            <!-- 3. Target container where tags are injected dynamically -->
-            <div id="globalTagCloud" class="global-tag-cloud"></div>
-            
-        </aside>
-  
-        <!-- Core Dynamic Content Section -->
-        <main class="content-container">
-            
-            <!-- 4. Search Field Placement -->
-            <div class="search-wrapper">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Search for a relevant keyword..." 
-                    aria-label="Search learning modules"
-                >
-                <button id="resetSearchBtn" class="invisible" title="Clear search filters">✕</button>
+        <section class="catalogue-section" id="user-stories">
+            <div class="container g-lg-5">
+                <div class="catalogue-head">
+                    <h2 class="no-anchor">User stories</h2>
+                    <span class="text-secondary small" id="story-count" aria-live="polite"></span>
+                </div>
+                <div class="catalogue-filters" role="group" aria-label="Filter user stories">
+                    <div class="btn-group flex-wrap" role="group" aria-label="Role">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" aria-pressed="true" data-filter-role="all">All roles</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" aria-pressed="false" data-filter-role="researcher">Researchers</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" aria-pressed="false" data-filter-role="manager">Repository managers</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" aria-pressed="false" data-filter-role="trainer">RDM trainers</button>
+                    </div>
+                    <select class="form-select form-select-sm" id="kind-filter" aria-label="Kind of help">
+                        <option value="all">Any kind of help</option>
+                        <option value="tutorial">Learn by doing</option>
+                        <option value="how-to">Get it done</option>
+                        <option value="reference">Look it up</option>
+                        <option value="explanation">Understand why</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="cpp-filter" aria-label="Core Preservation Process">
+                        <option value="">Any process</option>
+                        {%- for cat in cats %}
+                        <optgroup label="{{ cat }}">
+                        {%- assign cg = allcpp | where: "logical", cat %}
+                        {%- for c in cg %}{% if usedcpps contains c.id %}
+                        <option value="{{ c.id }}">{{ c.id | remove: "CPP-" }} {{ c.label }}</option>
+                        {%- endif %}{% endfor %}
+                        </optgroup>
+                        {%- endfor %}
+                    </select>
+                    <button type="button" class="btn btn-sm btn-link d-none" id="clear-filters">Clear filters</button>
+                </div>
+
+                <div class="story-catalogue">
+                    {%- for t in tracks %}
+                    {%- assign modules = site.pages | where: "type", t | where: "layout", "module" | sort: "order" %}
+                    {%- if modules.size > 0 %}
+                    <div class="story-group" data-group data-group-label="{{ t | replace: '_', ' ' | downcase }}">
+                        <h3 class="group-title no-anchor">{{ t | replace: "_", " " }}</h3>
+                        {%- for p in modules %}
+                        <div class="story-row" data-role="{{ p.story.as }}" data-kind="{{ p.kind }}" data-cpps="{{ p.cpps | join: ' ' }}">
+                            <h3 class="row-title no-anchor"><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+                            {% include kit-story.html story=p.story variant="compact" %}
+                            {% include kit-meta.html p=p compact=true %}
+                        </div>
+                        {%- endfor %}
+                    </div>
+                    {%- endif %}
+                    {%- endfor %}
+                </div>
+                <p class="text-secondary mt-3 d-none" id="no-stories">No user story matches these filters yet. <a href="{{ site.github.repository_url }}/issues/new?title=New%20user%20story">Suggest one</a>.</p>
             </div>
-      
-            <!-- Status indicator text -->
-            <div id="searchCounter" class="search-counter">Loading track registry index...</div>
-              
-            <!-- Target container where app.js will inject the module cards -->
-            <div id="articlesContainer" class="modules-grid"></div>
+        </section>
 
-            <!-- Fallback view shown only when zero query results return -->
-            <div id="noResults" class="hidden feedback-box">
-                <h3>No matching modules found</h3>
-                <p>Try adjusting your search terms, clicking another tag, or clearing the filter to see all structured tracks.</p>
+        <section class="py-5">
+            <div class="container g-lg-5">
+                <h2 class="no-anchor h4 mb-3">Explore</h2>
+                <div class="explore-links">
+                    <a href="{{ '/cpps' | relative_url }}"><i class="icon-workflow" aria-hidden="true"></i><span><b>Core Preservation Processes</b>The 30 WP1 processes, and which modules teach each one.</span></a>
+                    <a href="{{ '/indicators' | relative_url }}"><i class="icon-gauge" aria-hidden="true"></i><span><b>Re-use fitness indicators</b>WP1's 74 indicators of whether data is fit to be re-used.</span></a>
+                    <a href="{{ '/frameworks' | relative_url }}"><i class="icon-layers" aria-hidden="true"></i><span><b>Frameworks</b>CoreTrustSeal, nestor, ISO 16363, OAIS, PREMIS, FAIR.</span></a>
+                </div>
             </div>
+        </section>
 
-            <!-- Pagination Controls wrapper -->
-            <div id="loadMoreWrapper" class="hidden pagination-bar">
-                <button id="loadMoreBtn" class="primary-btn">Load More Modules ↓</button>
+        <section class="pb-5">
+            <div class="container g-lg-5">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="note-block">
+                            <h2 class="h6 no-anchor">Working on repository certification?</h2>
+                            <p>Our sister project FIDELIS builds the European network of Trustworthy Digital Repositories and the TTRAM attributes matrix. <a href="https://eden-fidelis.eu/transparent-trustworthy-repository-attributes-matrix-ttram">Explore TTRAM</a></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="note-block">
+                            <h2 class="h6 no-anchor">Help build the kit</h2>
+                            <p>Write a module in Google Docs and move it to the shared folder; the kit takes it from there. Draft modules especially welcome feedback. <a href="{{ '/contribute' | relative_url }}">How to contribute</a></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-        </main>
-
-    </div> <!-- Slutt på layout-container -->
-
-    <!-- Global Footer -->
-    <footer class="main-footer">
-        <!-- <p>work in progress..</p> -->
-    </footer>
-
-    <!-- Load your combined JavaScript file containing Part 1, 2 and 3 -->
-    <script src="app.js"></script>
+        </section>
+    </div>
+    {% include scroll-top.html %}
+    {% include footer.html %}
 </body>
 </html>

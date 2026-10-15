@@ -1,0 +1,88 @@
+---
+layout: page
+---
+{%- comment -%}
+  One Core Preservation Process. All facts come from _data/cpps.json, which is
+  mirrored from EOSC EDEN WP1 (wp1-cpp-descriptions); never edit them here.
+{%- endcomment -%}
+{%- assign c = site.data.cpps.cpps | where: "id", page.cpp | first -%}
+<p class="lead">{{ c.shortDefinition }}</p>
+<div class="module-meta">
+  <span class="meta-label">OAIS</span> <span>{{ c.oais }}</span>
+  <span class="meta-label ms-2">Category</span> <span>{{ c.logical }}</span>
+  <span class="meta-label ms-2">Version</span> <span>{{ c.version }} ({{ c.versionDate }})</span>
+</div>
+<p><a href="{{ c.url }}">Full description on the WP1 site</a></p>
+{{ content }}
+
+{%- comment -%}
+  Built to scale: a process may end up cited by dozens of modules. Modules that mainly
+  teach it (`cpps_primary`) come first; the rest are grouped by role, collapsed once
+  there are many, and the full list is one click away in the filtered story list.
+{%- endcomment -%}
+{%- assign cu_all = site.pages | where: "layout", "module" | sort: "title" %}
+{%- assign cu_primary = cu_all | where_exp: "p", "p.cpps_primary contains page.cpp" %}
+{%- assign cu_any = cu_all | where_exp: "p", "p.cpps contains page.cpp" %}
+{%- assign cu_also_n = cu_any.size | minus: cu_primary.size %}
+<h2 id="in-the-support-kit">In the support-kit</h2>
+{%- if cu_any.size == 0 %}
+<p class="text-secondary">No module covers this process yet. <a href="{{ site.github.repository_url }}/issues/new?title=Module%20for%20{{ page.cpp }}">Suggest one</a>.</p>
+{%- else %}
+<p class="cu-sum">{% if cu_primary.size > 0 %}<b>{{ cu_primary.size }}</b> module{% if cu_primary.size != 1 %}s{% endif %} teach{% if cu_primary.size == 1 %}es{% endif %} this process{% else %}No module teaches this process in depth yet{% endif %}{% if cu_also_n > 0 %} · applied in <b>{{ cu_also_n }}</b> more{% endif %}</p>
+{%- if cu_primary.size > 0 %}
+<h3 class="conn-title">Start here</h3>
+<ul class="mod-list is-primary">
+  {%- for p in cu_primary %}{% include kit-mod-row.html p=p role=true %}{% endfor %}
+</ul>
+{%- endif %}
+{%- if cu_also_n > 0 %}
+<h3 class="conn-title">Also applied in</h3>
+{%- assign cu_groups = "anyone,researcher,manager,trainer" | split: "," %}
+{%- for g in cu_groups %}
+{%- capture cu_rows %}{% for p in cu_any %}{% assign cu_as = p.story.as | default: "anyone" %}{% if cu_as == g %}{% unless p.cpps_primary contains page.cpp %}{% include kit-mod-row.html p=p %}{% endunless %}{% endif %}{% endfor %}{% endcapture %}
+{%- assign cu_rows = cu_rows | strip %}
+{%- if cu_rows != "" %}
+{%- assign cu_n = cu_rows | split: "<li>" | size | minus: 1 %}
+{%- assign cu_r = site.data.roles | where: "id", g | first %}
+<details class="mod-group"{% if cu_also_n <= 8 %} open{% endif %}>
+  <summary>{% if cu_r %}{{ cu_r.plural }}{% else %}For every role{% endif %} <span>{{ cu_n }}</span></summary>
+  <ul class="mod-list">{{ cu_rows }}</ul>
+</details>
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+<p class="conn-more"><a href="{{ '/' | relative_url }}?cpp={{ page.cpp }}#user-stories">Filter all user stories by this process →</a></p>
+{%- endif %}
+
+{%- assign types = c.relationships | map: "type" | uniq %}
+{%- if types.size > 0 %}
+<h2 id="related-processes">Related processes</h2>
+<table class="rel-table">
+  {%- for t in types %}
+  <tr>
+    <th>{{ t }}</th>
+    <td>
+      {%- assign rels = c.relationships | where: "type", t %}
+      {%- for r in rels %}
+      {%- assign rc = site.data.cpps.cpps | where: "id", r.cpp | first %}
+      {%- assign rs = r.cpp | downcase | replace: "-", "_" | prepend: "/" %}
+      <a href="{{ rs | relative_url }}"><span class="cpp-id">{{ r.cpp | remove: "CPP-" }}</span>{{ rc.label }}</a>
+      {%- endfor %}
+    </td>
+  </tr>
+  {%- endfor %}
+</table>
+{%- endif %}
+
+{%- if c.mappings.size > 0 %}
+<h2 id="framework-mappings">How WP1 maps this process</h2>
+<div class="table-responsive"><table class="table table-sm small">
+  <thead><tr><th>Framework</th><th>Corresponding term</th><th>Section</th></tr></thead>
+  <tbody>
+  {%- for m in c.mappings %}
+    <tr><td>{{ m.framework }}</td><td>{{ m.term }}</td><td>{{ m.section }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table></div>
+{%- endif %}
+<p class="text-secondary small">Source: <a href="{{ site.data.cpps.source.repo }}">EOSC EDEN WP1 CPP descriptions</a>{% if site.data.cpps.source.commit %} at {{ site.data.cpps.source.commit | slice: 0, 7 }}{% endif %}, <a href="https://doi.org/{{ site.data.cpps.source.doi }}">M1.1</a>.</p>

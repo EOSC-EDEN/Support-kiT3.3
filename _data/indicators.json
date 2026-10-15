@@ -1,0 +1,19 @@
+{
+  "note": "Mirrored from EOSC EDEN WP1 M1.2. The indicator list is filled by var/sync_indicators.py from the report's spreadsheet; never edit by hand. Pillar summaries are the kit's plain-language wording, not the report's definitions.",
+  "source": {
+    "title": "EOSC EDEN M1.2 Report on Metrics for Information Object Re-Use Fitness",
+    "doi": "10.5281/zenodo.21064927",
+    "version": "v1, 30 June 2026 (Zenodo lists a newer version)",
+    "license": "CC BY 4.0"
+  },
+  "pillars": [
+    {"id": "CDQ", "label": "Content Data Quality", "count": 33, "icon": "icon-database",
+     "about": "The data values themselves: whether what was recorded can be trusted and used again."},
+    {"id": "TDQ", "label": "Technical Data Quality", "count": 28, "icon": "icon-file-check",
+     "about": "The files and formats that carry the data: whether they open, validate and stay usable."},
+    {"id": "MDQ", "label": "Metadata Quality", "count": 13, "icon": "icon-list-checks",
+     "about": "The description around the data: whether others can find it, understand it and judge it."}
+  ],
+  "metrics": {"candidate": 618, "generic": 403, "data_specific": 215},
+  "indicators": []
+}

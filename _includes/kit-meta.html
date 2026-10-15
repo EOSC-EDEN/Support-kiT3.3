@@ -1,0 +1,9 @@
+{%- assign km = include.p -%}
+<div class="module-meta">
+  {% include kit-audience.html p=km compact=include.compact %}
+  {% include kit-kind-badge.html kind=km.kind %}
+  {%- if km.effort %}<span class="meta-item"><i class="icon-clock" aria-hidden="true"></i>{{ km.effort }}</span>{% endif %}
+  {%- if km.cpps.size > 0 %}<a class="meta-item" href="{{ km.url | relative_url }}#anchored-to"><i class="icon-workflow" aria-hidden="true"></i>{{ km.cpps.size }} process{% if km.cpps.size != 1 %}es{% endif %}</a>{% endif %}
+  {%- unless km.disciplines contains "all" or km.disciplines == nil %}<span class="meta-item">{{ km.disciplines | join: ", " }}</span>{% endunless %}
+  {%- unless include.compact %}{%- if km.status == "draft" %}<a class="meta-item meta-draft" href="{{ site.github.repository_url }}/issues/new?title=Feedback%3A%20{{ km.title | url_encode }}">Draft · give feedback</a>{% endif %}{% endunless %}
+</div>

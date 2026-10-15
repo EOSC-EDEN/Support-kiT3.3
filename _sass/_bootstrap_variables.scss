@@ -1,0 +1,26 @@
+/*----- EOSC EDEN brand (sampled from the official logo) -----*/
+$eden-teal: #008691;
+$eden-pink: #eb5d81;
+$eden-ink: #1d2327;
+
+$white: #fff;
+$primary: $eden-teal;
+$secondary: #5b6a6f;
+$light: #f3f7f8;
+$dark: $eden-ink;
+
+$link-color: #00707a;
+$body-color: $eden-ink;
+$component-active-bg: $primary;
+$border-radius: 0.5rem;
+$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+/*----- A calmer type scale for long reading pages -----*/
+$line-height-base: 1.65;
+$h1-font-size: 2.35rem;
+$h2-font-size: 1.55rem;
+$h3-font-size: 1.2rem;
+$h4-font-size: 1.05rem;
+$h5-font-size: 1rem;
+$h6-font-size: 0.95rem;
+$headings-font-weight: 600;
