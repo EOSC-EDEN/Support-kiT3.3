@@ -3,7 +3,7 @@ track: ztools
 discipline: Tools 1
 order: 2
 name: Useful tools
-description: Research data repositories use certification to demonstrate that they meet recognized standards for data quality, security, preservation, and accessibility. It promotes transparency and accountability by providing an independent assessment of a repository’s policies, processes, and infrastructure.
+description: This category will be filled at a later stage, with information on relevant tools. 
 keywords:
   - pid
   - TDR
