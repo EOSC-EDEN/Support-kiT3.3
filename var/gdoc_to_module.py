@@ -39,18 +39,18 @@ LABELS = {
     "order in the role path": "order", "order": "order",
     "disciplines": "disciplines", "data types": "data_types", "data_types": "data_types",
     "keywords": "keywords",
-    "processes it mainly teaches": "cpps_primary", "cpps_primary": "cpps_primary",
-    "other processes it applies": "cpps_other", "cpps": "cpps_other",
-    "frameworks cited": "satisfies", "satisfies": "satisfies",
+    "main processes": "cpps_primary", "processes it mainly teaches": "cpps_primary", "cpps_primary": "cpps_primary",
+    "other processes": "cpps_other", "other processes it applies": "cpps_other", "cpps": "cpps_other",
+    "frameworks": "satisfies", "frameworks cited": "satisfies", "satisfies": "satisfies",
     "related modules": "related", "related_pages": "related",
     "contributors": "contributors", "status": "status",
     "file name": "page_id", "page_id": "page_id",
     "effort": "effort", "time needed": "effort",
 }
 NAMES = {"title": "Title", "description": "Description", "disciplines": "Disciplines", "keywords": "Keywords",
-         "contributors": "Contributors", "status": "Status", "effort": "Time needed", "as": "Role", "want": "I want to", "so_that": "So that", "task": "Short task", "kind": "Kind of help",
-         "order": "Order in the role path", "cpps_primary": "Processes it mainly teaches",
-         "cpps_other": "Other processes it applies", "satisfies": "Frameworks cited",
+         "contributors": "Contributors", "status": "Status", "effort": "Time needed", "as": "Who is it for", "want": "I want to", "so_that": "So that", "task": "Short task", "kind": "Kind of help",
+         "order": "Order in the role path", "cpps_primary": "Main processes",
+         "cpps_other": "Other processes", "satisfies": "Frameworks",
          "related": "Related modules", "data_types": "Data types", "page_id": "File name"}
 ROLE_WORDS = {"researcher": "researcher", "researchers": "researcher", "depositor": "researcher",
               "manager": "manager", "repository manager": "manager", "repository managers": "manager",
@@ -124,7 +124,7 @@ def cpp_ids(s, field, cpps):
 
 
 def pick(value, table, default=None):
-    """First option whose keywords appear in what the author wrote (dropdown text, a word, a phrase)."""
+    """First option whose keywords appear in what the author wrote (a word, a phrase, or v2 dropdown text)."""
     v = re.sub(r"[^a-z0-9 ]", " ", value.lower())
     for key, words in table:
         if any(re.search(rf"\b{w}", v) for w in words):
@@ -291,7 +291,7 @@ def build(meta, roles, cpps):
     raw_role = get("as")
     role = pick(raw_role, ROLE_PICK, None) if raw_role else None
     if role is None:
-        warnings.append(f"Role {'`' + raw_role + '` not recognised' if raw_role else 'is empty'}; filed under Getting started (for every role)")
+        warnings.append(f"Who is it for {'`' + raw_role + '` not recognised' if raw_role else 'is empty'}; filed under Getting started (for every role)")
         role = "anyone"
 
     order = get("order")
@@ -330,11 +330,11 @@ def build(meta, roles, cpps):
     if get("keywords"):
         fm["keywords"] = split_list(get("keywords"))
 
-    primary = cpp_ids(get("cpps_primary"), "Processes it mainly teaches", cpps)
-    other = cpp_ids(get("cpps_other"), "Other processes it applies", cpps)
+    primary = cpp_ids(get("cpps_primary"), "Main processes", cpps)
+    other = cpp_ids(get("cpps_other"), "Other processes", cpps)
     allc = sorted(set(primary) | set(other))
     if len(primary) > 3:
-        warnings.append(f"'Processes it mainly teaches' lists {len(primary)}; kept the first 3 as main, the rest count as 'applies'")
+        warnings.append(f"'Main processes' lists {len(primary)}; kept the first 3 as main, the rest count as 'applies'")
         primary = primary[:3]
     if allc:
         fm["cpps"] = allc
@@ -441,7 +441,7 @@ def main():
         value = clean_value(cells[1])
         if field in ("cpps_primary", "cpps_other") and meta.get(field) and not is_placeholder(meta[field]):
             if value and not is_placeholder(value):
-                meta[field] += ", " + value                # several dropdown rows feed one list
+                meta[field] += ", " + value                # numbered rows (v2 template) feed one list
         elif field:
             meta[field] = value
         elif label:

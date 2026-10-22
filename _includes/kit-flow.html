@@ -35,9 +35,9 @@
     <div class="note">
       <h3 class="no-anchor">What authors need</h3>
       <ul>
-        <li>A copy of <b>EDEN Support-kit – module template (v2)</b></li>
+        <li>A copy of <b>EDEN Support-kit – module template</b></li>
         <li>Access to the folder <b>EDEN Support-kit – ready for the kit</b></li>
-        <li>Nothing else: no GitHub account, no Markdown, no scripts. Dropdowns for role, kind and processes; names work as well as IDs</li>
+        <li>Nothing else: no GitHub account, no Markdown, no scripts. A plain table filled in your own words; process names work as well as numbers</li>
       </ul>
     </div>
     <div class="note">
@@ -90,7 +90,7 @@
     pr:      { lane: "review", row: 6, title: "Pull request opened or updated", text: "One per Doc, branch gdocs/&lt;doc id&gt;", when: "same run",
       body: "Each Doc gets its own pull request with a link back to the Doc, the points to check and a short review checklist; it is labelled needs-attention when defaults were used. A later edit to the same Doc, even a new title or role, updates the same pull request.",
       see: { kind: "pr", t: "Module: Preparing deposits – file formats and technical data quality", b: "gdocs/1FBlwyqk… → main · from-google-docs",
-        text: "☐ The user story reads well and the title is the task\n☐ Processes it mainly teaches (1–3) are right\n☐ References have working links\n☐ Preview looks right" } },
+        text: "☐ The user story reads well and the title is the task\n☐ Main processes (1–3) are right\n☐ References have working links\n☐ Preview looks right" } },
     sent:    { lane: "author", row: 7, title: "Comment in the Doc: sent for review", text: "With the link, once", when: "same run",
       body: "When the pull request is first opened, the author gets one comment with its link. They can follow the review there or simply keep editing the Doc.",
       see: { kind: "comment", by: "EDEN Support-kit bot", text: "Sent to the support-kit for review: github.com/EOSC-EDEN/support-kit3.3/pull/42\nKeep editing here; changes to this Doc update the review automatically.\n\nA few things the reviewers will check (you can fix them here):\n• read `virus scan` as CPP-007 Virus Scanning; check this is right" } },

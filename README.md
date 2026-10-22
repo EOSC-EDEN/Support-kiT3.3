@@ -45,7 +45,7 @@ Run `python3 var/check_modules.py` before committing; CI runs it before every bu
 
 ## Writing a module in Google Docs (no code needed)
 
-1. Copy the Google Doc "EDEN Support-kit – module template (v2)" (File > Make a copy).
+1. Copy the Google Doc "EDEN Support-kit – module template" (File > Make a copy).
    "EDEN Support-kit – example module (Preparing deposits)" shows one filled in (older table layout,
    still converts).
 2. Fill in the metadata table and write under "Module content". Share with colleagues for comments as usual.
@@ -57,37 +57,39 @@ request. Reviewers merge it; the author never touches GitHub. (Not yet run again
 
 ### What the template looks like
 
-The converter needs two Google Docs headings, **Module metadata** and **Module content**; everything
-else is forgiving. Text still in `[square brackets]` counts as not filled in.
+One plain table, then the module. No dropdowns: authors write every value in their own words, and
+the converter works out what they mean. Text still in `[square brackets]` counts as not filled in,
+so optional rows can simply be left alone.
 
-**Module metadata** is a table with the columns *Field*, *Value* and *How to fill it*. The converter
-reads the first two columns. Rows, in template order:
+The converter needs two Google Docs headings, **Module metadata** and **Module content**. The
+metadata table has the columns *Field*, *Value* and *How to fill it*; only the first two are read.
 
-| Field | Becomes | Notes |
+| Field | Example value | Becomes |
 |---|---|---|
-| Title | `title`, `page_id` | Required. Text after a dash is dropped from the file name |
-| Description | `description` | One sentence |
-| Role | `story.as` | Researcher, Repository manager, RDM trainer or Every role; matched by keyword |
-| I want to / So that | `story.want` / `story.so_that` | |
-| Short task | `story.task` | Under 45 characters, for the home-page menu |
-| Kind of help | `kind` | e.g. "Get it done (how-to)"; matched by keyword |
-| Order in the role path | `order` | A number ("2nd" works) |
-| Main process 1, 2, 3 | `cpps_primary` | One process per row, e.g. "010 · File Format Validation" |
-| Other processes it applies | `cpps` | Free text, comma-separated names or numbers |
-| Frameworks cited | `satisfies` | Separated by semicolons, e.g. "CoreTrustSeal R14; nestor" |
-| Disciplines, Data types, Keywords | lists | Comma-separated, or "all" |
-| Related modules | `related_pages` | Titles of other kit modules |
-| Contributors | `contributors` | Person chips (type @) or names |
-| Status | `status` | "Ready for review" (or any text with "ready") → `ready`, otherwise `draft` |
+| Title | Checking file formats on ingest | `title`, `page_id` (required) |
+| Description | One sentence for cards and search | `description` |
+| Who is it for | Repository manager | `story.as`: Researcher, Repository manager, RDM trainer or Everyone |
+| I want to | check the formats of incoming files before ingest | `story.want` |
+| So that | broken files are caught before they are archived | `story.so_that` |
+| Kind of help | How-to | `kind`: How-to, Tutorial, Reference or Explanation |
+| Main processes | file format identification, 10 | `cpps_primary`: 1–3 processes, names or numbers |
+| Other processes | virus scan | `cpps` (optional) |
+| Frameworks | CoreTrustSeal R14; nestor | `satisfies` (optional, separated by semicolons) |
+| Keywords | formats, ingest | `keywords` (optional) |
+| Related modules | Preparing deposits | `related_pages` (optional, titles of other modules) |
+| Contributors | @person chips or names | `contributors` |
+| Status | Draft or Ready | `status` |
+
+Left out on purpose, so authors have less to fill in: the home-page menu label (taken from
+"I want to"), the order in the role path (reviewers set it; new modules go to the end), and
+disciplines and data types (default "all"). Reviewers can add these in the pull request.
 
 **Module content** starts with an opening paragraph, then the sections *Considerations*,
 *Recommendations* and *More information*. Bullets under *Recommendations* (or *Checklist*, *Steps*)
 become a tickable checklist on the site.
 
-**Dropdowns.** Role, Kind of help, Main process 1–3 and Status are meant to be dropdowns, but nobody
-has checked yet whether they survived converting the template to Google Docs. If they are missing,
-add them in the template with Insert > Dropdown. The converter only reads the text, so typed values
-work either way: names, numbers, "CPP-010" and "CoreTrustSeal R14" are all understood.
+Older Docs made from the v1 or v2 template (with rows such as "Role", "Main process 1/2/3" or
+"Frameworks cited") still convert.
 
 ### What blocks, what doesn't
 
@@ -97,7 +99,7 @@ under "Points to check" (label `needs-attention`) and in the author's comment:
 
 | In the Doc | What happens |
 |---|---|
-| Role empty or unclear | Filed under Getting started (for every role) |
+| "Who is it for" empty or unclear | Filed under Getting started (for every role) |
 | Kind of help empty | No kind badge until it is set |
 | "I want to" empty | Listed without its user story |
 | Process typed as a name ("virus scan") | Matched to CPP-007 Virus Scanning, flagged so the reviewer can confirm |

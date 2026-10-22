@@ -9,8 +9,8 @@ What decides which model you may use is **where the text goes**, not which model
 
 **Local models** run on your own machine or on project-controlled servers, so nothing leaves
 them. Examples: **Qwen** (including Qwen Coder), Llama, Mistral's open models, DeepSeek, run with
-Ollama, LM Studio or vLLM. Use these for anything not yet public: unpublished module drafts,
-author comments, personal data, internal documents.
+Ollama, LM Studio or vLLM. Use these for anything not yet public: unpublished material, personal data, internal
+documents.
 
 **Public models** are hosted services run by a company. Examples: **Claude** (Anthropic; Claude
 Code, claude.ai, API), ChatGPT and the OpenAI API, Gemini, GitHub Copilot, Mistral Le Chat, and
@@ -21,9 +21,8 @@ first and check the service's data-use and retention terms.
 | | Local | Public |
 |---|---|---|
 | Data leaves our control | No | Yes |
-| Unpublished drafts, personal data | Yes | Only with the owner's agreement |
+| Unpublished material, personal data | Yes | Only with the owner's agreement |
 | Repository code and published content | Yes | Yes |
-| Good for | Drafting and editing unpublished module text | Code, workflows and documentation in this repository |
 
 Coding agents should read [`AGENTS.md`](AGENTS.md) first: it holds the rules, layout,
 commands and front-matter format. Point your tool at it. In Claude Code, a local
@@ -38,7 +37,7 @@ commands and front-matter format. Point your tool at it. In Claude Code, a local
    against `_data/` or the original source. Never invent `cpps_primary`.
 3. **Suggestions stay suggestions.** Machine-made links between modules, CPPs and indicators
    (`var/suggest_anchors.py` or any model) are only proposals until a person accepts them.
-4. **Mind what you paste.** Never send secrets or tokens to any model. Unpublished drafts and
+4. **Mind what you paste.** Never send secrets or tokens to any model. Unpublished material and
    personal data go to local models only, unless the data owner agrees (see above).
 5. **Licensing.** Generated content must fit the kit's licences (CC BY 4.0 for content). Don't
    ask a model to reproduce copyrighted text, and don't paste such text in.
@@ -46,8 +45,6 @@ commands and front-matter format. Point your tool at it. In Claude Code, a local
    converter changes, and build the site (`bundle exec jekyll build`) before opening a PR.
 7. **Small, reviewable changes.** One purpose per pull request; no unrequested rewrites or
    new dependencies.
-8. **Keep the authors' voice.** Modules are written by their authors in Google Docs. A model
-   may help edit, but the author signs off on the content.
 
 ## Disclosure
 

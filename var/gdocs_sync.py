@@ -163,7 +163,7 @@ def cmd_convert(did):
         body += [sug.stdout.strip(), ""]
     body += ["**Review checklist**", "",
              "- [ ] The user story reads well and the title is the task",
-             "- [ ] Processes it mainly teaches (1–3) are right; compare with the suggestions above",
+             "- [ ] Main processes (1–3) are right; compare with the suggestions above",
              "- [ ] References have working links",
              "- [ ] Preview looks right (see the build check below)", "",
              "Changes go back into the Google Doc, not into this branch: the next edit to the Doc updates this pull request.",

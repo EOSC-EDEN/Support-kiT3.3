@@ -113,6 +113,8 @@ Body: opening paragraph, `##` sections, recommendations as `- [ ]` items, refere
 - **Google Docs → PR:** `gdocs-to-pr.yml` lists Docs in the "ready" Drive folder, converts each with
   `var/gdoc_to_module.py` and opens one PR per Doc (`gdocs/<docId>`). Failures become a comment in the Doc.
   The converter is deliberately forgiving (Google export quirks, loose roles/kinds/CPP names); keep it so.
+  The template is a plain table filled in free text, with no dropdowns. Keep it short: add a row only if
+  authors can't do without it, and keep older template labels (v1, v2) working.
 - **Pages:** `pages.yml` publishes the old app from `main` at `/` and the kit from `ett` at `/ett`
   (https://eosc-eden.github.io/Support-kiT3.3/ett/). Identical copy needed on `main`. Links must use
   `relative_url`, never a bare `/`.
@@ -124,7 +126,7 @@ Owned by the project owner's Drive (to move to a shared drive later).
 
 | Item | ID |
 |---|---|
-| Module template v2 (use this; dropdowns for role, kind, main process 1–3, status) | `16JsiG9edwKCt3cuaTMEdR3kISEdrFYqT3MPK489iLys` |
+| Module template v2 (current; to be replaced by the v3 plain-table template, see below) | `16JsiG9edwKCt3cuaTMEdR3kISEdrFYqT3MPK489iLys` |
 | Worked example "Preparing deposits" (v1 layout, still converts) | `1FBlwyqkM-S8QlRBxH58q8z9H-2KLo3ufBdt3yJwDeEc` |
 | "Ready for the kit" folder (`GDRIVE_READY_FOLDER`) | `1qTIuQq-G62Bf6-CZgTxH-C4KevIcWnGI` |
 | Old template v1 (to trash or rename "old") | `1us82PGa7Na80dTGEmpkTDJH8Vf-3CIpCmq_ZRz8U6G0` |
@@ -132,7 +134,8 @@ Owned by the project owner's Drive (to move to a shared drive later).
 ## Not verified yet
 
 - The live Drive → PR run against the real Drive API and GitHub (needs the secrets in README).
-- Whether the v2 template's dropdowns survived the docx → Google Docs conversion (the converter works either way).
+- The v3 template Doc doesn't exist yet. Its text is `var/tests/fixtures/v3_template_empty.md`; once the Doc
+  exists, swap its id into `pages/contribute.md` and replace the v3 fixtures with real exports.
 - The public-link fallback (`/export?format=md` without a service-account key): best effort.
 - `jekyll-github-metadata` with a token in CI. If `prism` fails to build, drop `jemoji` (unused).
 
