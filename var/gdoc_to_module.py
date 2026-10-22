@@ -214,7 +214,7 @@ def clean_body(lines, page_id):
     for raw in lines:
         line = raw.rstrip()
         plain = re.sub(r"^[>\s]*(?:[*\-+]|\d+[.)])?\s*", "", unescape(line)).strip()
-        if plain.lower() in TEMPLATE_GUIDANCE:
+        if plain.strip("*_ ").lower() in TEMPLATE_GUIDANCE:       # also when styled bold/italic
             continue
         if re.fullmatch(r"\[[^\]]{3,}\]", plain):       # a whole line still on its [template text]
             dropped += 1

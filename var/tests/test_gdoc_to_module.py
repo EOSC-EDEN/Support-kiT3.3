@@ -59,5 +59,10 @@ check("v3: other processes and frameworks read", "CPP-007" in fm["cpps"]
 check("v3: escaped dots removed inside URLs", "<https://www.nationalarchives.gov.uk/PRONOM/>" in page)
 check("v3: rows left out get defaults", fm["disciplines"] == ["all"] and "order" not in fm and fm["status"] == "ready")
 
+code, fm, page, out = convert("v3_template_styled_filled.md")
+check("v3 styled template: bold labels read", code == 0 and fm["story"]["as"] == "manager"
+      and fm["cpps_primary"] == ["CPP-008", "CPP-010"])
+check("v3 styled template: italic guidance line dropped", "One action per bullet" not in page)
+
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)

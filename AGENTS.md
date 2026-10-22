@@ -63,6 +63,7 @@ python3 var/make_sidebar.py                  # regenerate sidebar module lists (
 python3 var/sync_cpps.py [--summary FILE]    # mirror WP1 CPPs, regenerate pages/cpps/
 python3 var/tests/test_gdoc_to_module.py     # run after any converter change
 python3 var/suggest_anchors.py page.md       # suggest CPPs for a module (suggestions only)
+python3 var/make_reference_sheet.py > r.html  # authors' reference sheet; re-upload to Drive when CPPs etc. change
 ```
 
 ## Module front matter
@@ -113,8 +114,10 @@ Body: opening paragraph, `##` sections, recommendations as `- [ ]` items, refere
 - **Google Docs → PR:** `gdocs-to-pr.yml` lists Docs in the "ready" Drive folder, converts each with
   `var/gdoc_to_module.py` and opens one PR per Doc (`gdocs/<docId>`). Failures become a comment in the Doc.
   The converter is deliberately forgiving (Google export quirks, loose roles/kinds/CPP names); keep it so.
-  The template is a plain table filled in free text, with no dropdowns. Keep it short: add a row only if
-  authors can't do without it, and keep older template labels (v1, v2) working.
+  The template is a plain table filled in free text, with no dropdowns. Styling (yellow value cells, grey
+  guidance) is cosmetic; the converter reads text only, so test a real export after any template change.
+  Keep it short: add a row only if authors can't do without it, and keep older template labels (v1, v2)
+  working.
 - **Pages:** `pages.yml` publishes the old app from `main` at `/` and the kit from `ett` at `/ett`
   (https://eosc-eden.github.io/Support-kiT3.3/ett/). Identical copy needed on `main`. Links must use
   `relative_url`, never a bare `/`.
@@ -129,6 +132,7 @@ Owned by the project owner's Drive (to move to a shared drive later).
 | Folder "EDEN Support-kit" (holds the three items below) | `1--d3re7Zij29eNeg1plQ2aW-zXApquoM` |
 | Module template v3 (plain table, use this) | `1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U` |
 | Example module v3 "Checking file formats on ingest" | `1P6_BEQK3cYZJM7DFnOMeyRs_1BOBqFKoE_mAfWqdezQ` |
+| Reference sheet (every value the kit understands; made by `var/make_reference_sheet.py`) | `1my8JDbFFWFeltbuJhs8rQIlhDCw_4_E0WXPYGQWOJEU` |
 | "Ready for the kit" folder (`GDRIVE_READY_FOLDER`) | `1qTIuQq-G62Bf6-CZgTxH-C4KevIcWnGI` |
 | Older templates and examples (v1, v2, v4 and the tick-box v3 example; titles start "OLD –" or are unused) | in My Drive |
 
