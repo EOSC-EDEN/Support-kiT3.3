@@ -1,0 +1,74 @@
+# Publish GitHub Pages: the old app from `main` at /, the ETT kit from `ett` at /ett.
+#
+# The repository has one Pages site, so every deploy rebuilds both halves. Keep an
+# identical copy of this file on `main` and `ett` (a push runs the copy on its own
+# branch), and remove the deploy job from main's build-index.yml.
+# Needs: Settings › Environments › github-pages allows deployments from `main` and `ett`.
+# At the cut-over (`ett` becomes `main`) delete this file and turn on jekyll.yml's deploy.
+name: Pages (main at /, ett at /ett)
+
+on:
+  push:
+    branches: [ main, ett ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main, path: main }
+      - uses: actions/checkout@v5
+        with: { ref: ett, path: ett }
+
+      - uses: ruby/setup-ruby@v1.204.0
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: ett
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Old app (main) at /
+        working-directory: main
+        run: |
+          node scripts/build-index.mjs
+          mkdir -p ../site
+          rsync -a --exclude .git --exclude .github ./ ../site/
+
+      - name: Kit (ett) at /ett
+        working-directory: ett
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 var/check_modules.py
+          python3 var/make_sidebar.py
+          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}/ett" -d ../site/ett
+        env:
+          PAGES_REPO_NWO: ${{ github.repository }}
+          JEKYLL_ENV: production
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}ett/
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

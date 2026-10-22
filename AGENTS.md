@@ -112,6 +112,9 @@ Body: opening paragraph, `##` sections, recommendations as `- [ ]` items, refere
 - **Google Docs → PR:** `gdocs-to-pr.yml` lists Docs in the "ready" Drive folder, converts each with
   `var/gdoc_to_module.py` and opens one PR per Doc (`gdocs/<docId>`). Failures become a comment in the Doc.
   The converter is deliberately forgiving (Google export quirks, loose roles/kinds/CPP names); keep it so.
+- **Pages:** `pages.yml` publishes the old app from `main` at `/` and the kit from `ett` at `/ett`
+  (https://eosc-eden.github.io/Support-kiT3.3/ett/). Identical copy needed on `main`. Links must use
+  `relative_url`, never a bare `/`.
 - Scheduled workflows only fire from the default branch; while `ett` isn't default they need a copy on `main`.
 
 ## Google Drive items
@@ -138,7 +141,7 @@ Verified with real Jekyll: the build, task lists, and ETT's `{% else % %}` typo 
 
 1. Tag the last commit of the old app on `main` (e.g. `vanilla-final`).
 2. Merge `ett` into `main` (or reset `main` to `ett` if the owner prefers). Add `redirect_from:` for old app URLs people link to.
-3. Set `KIT_BRANCH=main` (or delete it) and `KIT_DEPLOY=true`. Remove duplicate scheduled workflow copies.
+3. Set `KIT_BRANCH=main` (or delete it) and `KIT_DEPLOY=true`; delete `pages.yml`. Remove duplicate scheduled workflow copies.
 4. Pages deploys from the workflow; the `github-pages` environment must allow `main`.
 5. Check `github.source.branch` in `_config.yml` and the edit/issue links.
 6. Delete `ett`, or keep it protected for a release or two.
@@ -151,7 +154,6 @@ Verified with real Jekyll: the build, task lists, and ETT's `{% else % %}` typo 
 - Licence of contributed content (CC BY 4.0 assumed in the footer); confirm with WP5.
 - Discipline and data-type vocabularies: free text until T3.2 has a list.
 - Hosting after the project: Codeberg planned; `peter-evans/create-pull-request` and GitHub Pages need replacements.
-- Preview hosting before `KIT_DEPLOY=true` (deploying from `ett` replaces what `main` publishes).
 - Indicators: confirm M1.2 IDs, when authors start tagging them, and whether candidate metrics are shown at all.
 - Tool-made anchor links stay suggestions until a person accepts them; who curates the CPP ↔ indicator crosswalk.
 

@@ -28,7 +28,7 @@ Each role page lists its modules in a suggested order. The sidebar shows where y
 
 ## 2. Or start from what you want to do
 
-The [home page](/) lists every module as a user story. Filter by role or by kind of guidance, or click a Core Preservation Process to see only the modules that apply it.
+The [home page]({{ '/' | relative_url }}) lists every module as a user story. Filter by role or by kind of guidance, or click a Core Preservation Process to see only the modules that apply it.
 
 ## 3. Know what kind of page you're reading
 
