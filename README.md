@@ -46,8 +46,8 @@ Run `python3 var/check_modules.py` before committing; CI runs it before every bu
 ## Writing a module in Google Docs (no code needed)
 
 1. Copy the Google Doc "EDEN Support-kit – module template" (File > Make a copy).
-   "EDEN Support-kit – example module (Preparing deposits)" shows one filled in (older table layout,
-   still converts).
+   "EDEN Support-kit – example module v3 (Checking file formats on ingest)" shows one filled in.
+   Both are in the Drive folder "EDEN Support-kit", next to the ready folder.
 2. Fill in the metadata table and write under "Module content". Share with colleagues for comments as usual.
 3. When it is ready, move the Doc into the Drive folder **EDEN Support-kit – ready for the kit**.
 

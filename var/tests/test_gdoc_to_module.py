@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Regression checks for var/gdoc_to_module.py against real Google Docs Markdown exports.
 
-The v1 and v2 fixtures are actual exports from the template Docs, plus a copy with
-deliberately messy values. The v3 fixtures (plain table, no dropdowns) are written in the
-same export format; replace them with real exports once the v3 template Doc exists. Run from the repository root:  python3 var/tests/test_gdoc_to_module.py
+The fixtures are actual Google Docs exports of the template and example Docs (v1, v2 and
+the v3 plain table), plus a copy with deliberately messy values. Run from the repository root:  python3 var/tests/test_gdoc_to_module.py
 """
 import pathlib, subprocess, sys, yaml
 
@@ -57,6 +56,7 @@ check("v3: role and kind in plain words", fm["story"]["as"] == "manager" and fm[
 check("v3: one 'Main processes' row, names and numbers", fm["cpps_primary"] == ["CPP-008", "CPP-010"])
 check("v3: other processes and frameworks read", "CPP-007" in fm["cpps"]
       and {"framework": "cts-2026", "code": "R14"} in fm["satisfies"])
+check("v3: escaped dots removed inside URLs", "<https://www.nationalarchives.gov.uk/PRONOM/>" in page)
 check("v3: rows left out get defaults", fm["disciplines"] == ["all"] and "order" not in fm and fm["status"] == "ready")
 
 print(f"\n{fails} failure(s)")

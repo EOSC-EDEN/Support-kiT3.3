@@ -1,5 +1,4 @@
-EDEN Support-kit module
-
+**EDEN Support-kit module**  
 Fill in the table, write your module below it, then move this Doc into the ready folder. You don't need GitHub or Markdown.
 
 # How it works
@@ -20,7 +19,7 @@ Fill in the table, write your module below it, then move this Doc into the ready
 | I want to | \[what the reader wants to do\] | Lower case. Example: prepare my files for deposit |
 | So that | \[why it matters to them\] | The benefit; say something the title does not. |
 | Kind of help | \[How-to, Tutorial, Reference or Explanation\] | How-to: steps to get a task done. Tutorial: learn by doing. Reference: facts to look up. Explanation: background and why. |
-| Main processes | \[1 to 3 processes\] | The WP1 Core Preservation Processes this module mainly teaches. Names or numbers, separated by commas, e.g. “file format validation, 8”. [WP1 list](https://eosc-eden.github.io/wp1-cpp-descriptions/) |
+| Main processes | \[1 to 3 processes\] | The WP1 Core Preservation Processes this module mainly teaches. Names or numbers, separated by commas, e.g. “file format validation, 8”. List: eosc-eden.github.io/wp1-cpp-descriptions |
 | Other processes | \[optional\] | Other processes the reader also touches. |
 | Frameworks | \[optional\] | For example: CoreTrustSeal R14; nestor. Separate with semicolons. |
 | Keywords | \[optional\] | A few words for search, separated by commas. |

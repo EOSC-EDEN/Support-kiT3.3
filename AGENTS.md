@@ -126,16 +126,17 @@ Owned by the project owner's Drive (to move to a shared drive later).
 
 | Item | ID |
 |---|---|
-| Module template v2 (current; to be replaced by the v3 plain-table template, see below) | `16JsiG9edwKCt3cuaTMEdR3kISEdrFYqT3MPK489iLys` |
-| Worked example "Preparing deposits" (v1 layout, still converts) | `1FBlwyqkM-S8QlRBxH58q8z9H-2KLo3ufBdt3yJwDeEc` |
+| Folder "EDEN Support-kit" (holds the three items below) | `1--d3re7Zij29eNeg1plQ2aW-zXApquoM` |
+| Module template v3 (plain table, use this) | `1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U` |
+| Example module v3 "Checking file formats on ingest" | `1P6_BEQK3cYZJM7DFnOMeyRs_1BOBqFKoE_mAfWqdezQ` |
 | "Ready for the kit" folder (`GDRIVE_READY_FOLDER`) | `1qTIuQq-G62Bf6-CZgTxH-C4KevIcWnGI` |
-| Old template v1 (to trash or rename "old") | `1us82PGa7Na80dTGEmpkTDJH8Vf-3CIpCmq_ZRz8U6G0` |
+| Older templates and examples (v1, v2, v4 and the tick-box v3 example; titles start "OLD –" or are unused) | in My Drive |
 
 ## Not verified yet
 
 - The live Drive → PR run against the real Drive API and GitHub (needs the secrets in README).
-- The v3 template Doc doesn't exist yet. Its text is `var/tests/fixtures/v3_template_empty.md`; once the Doc
-  exists, swap its id into `pages/contribute.md` and replace the v3 fixtures with real exports.
+- The v3 fixtures are real exports of the template and example Docs (2026-10-22); the converter and the
+  workflow's convert step were tested on them locally. The live run (Drive API, PR, Doc comments) is not.
 - The public-link fallback (`/export?format=md` without a service-account key): best effort.
 - `jekyll-github-metadata` with a token in CI. If `prism` fails to build, drop `jemoji` (unused).
 

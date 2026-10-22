@@ -246,6 +246,8 @@ def clean_body(lines, page_id):
     text = "\n".join(out)
     # Undo escapes that don't change meaning mid-line (keep \* \# \- \. that could start markup)
     text = re.sub(r"(?<!^)(?<!\n)\\([_:\[\]>~'\"=!()&])", r"\1", text)
+    # Inside a URL a backslash never means anything ("www\.example.org" in Google's export)
+    text = re.sub(r"https?\\?:\S+", lambda m: re.sub(r"\\(?=[^\w\s])", "", m.group(0)), text)
     # Bare URLs -> autolinks (kramdown doesn't link bare URLs)
     text = re.sub(r"(?<![<(\[\w])(https?://[^\s<>)\]]+?)([.,;]?)(?=\s|$)", r"<\1>\2", text)
     # Images that Google inlined as data -> files next to the site's images
