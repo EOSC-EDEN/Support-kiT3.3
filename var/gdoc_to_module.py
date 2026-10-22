@@ -63,6 +63,9 @@ KINDS = {"how-to": "how-to", "how to": "how-to", "get it done": "how-to",
 # Guidance sentences printed in the template body; never part of a module page.
 TEMPLATE_GUIDANCE = {
     "one action per bullet, starting with a verb. on the website these become a checklist readers can tick.",
+    "everything below this line becomes your module page on the website. write as much as you need: your own "
+    "sections (as google docs headings), paragraphs, numbered or bulleted lists, tables, links and images. "
+    "the three sections below are suggestions; bullets under recommendations become a checklist.",
 }
 CHECKLIST_HEADINGS = re.compile(r"recommendation|checklist|to do|steps", re.I)
 
@@ -240,6 +243,11 @@ def clean_body(lines, page_id):
         elif li:
             line = f"{li.group(1)}- {'[ ] ' if in_checklist and not li.group(1) else ''}{li.group(2)}"
         out.append(line)
+        # Google exports paragraphs without spacing between them as line breaks ("text  \n"):
+        # keep them as separate paragraphs instead of letting Markdown join them.
+        if raw.endswith("  ") and line.strip() and not (done or box or li or line.lstrip().startswith("|")
+                                                        or re.match(r"^\s*\d+[.)]\s", line)):
+            out.append("")
 
     if dropped:
         warnings.append(f"{dropped} line(s) of the content were still template text and were left out")

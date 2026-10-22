@@ -63,6 +63,17 @@ code, fm, page, out = convert("v3_template_styled_filled.md")
 check("v3 styled template: bold labels read", code == 0 and fm["story"]["as"] == "manager"
       and fm["cpps_primary"] == ["CPP-008", "CPP-010"])
 check("v3 styled template: italic guidance line dropped", "One action per bullet" not in page)
+check("v3 styled template: 'everything below this line' note dropped", "Everything below this line" not in page)
+
+code, fm, page, out = convert("v3_extra_content.md")
+check("extra content: converts", code == 0 and fm["kind"] == "tutorial")
+check("extra content: paragraphs stay separate", "named link](https://www.nationalarchives.gov.uk/PRONOM/).\n\nSecond opening" in page)
+check("extra content: own sections, sub-headings and a section after More information kept",
+      all(h in page for h in ("## Before you start", "### Tools that help", "## Steps", "## Glossary")))
+check("extra content: numbered and nested lists, tables kept", "1. Run DROID on the folder." in page
+      and "  - Nested point about PDF/A." in page and "| DROID | Identifies formats |" in page)
+check("extra content: only Recommendations bullets become a checklist", "- [ ] Identify every file." in page
+      and "- [ ] DROID" not in page and "- [ ] Which formats" not in page)
 
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)

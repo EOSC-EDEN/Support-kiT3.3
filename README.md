@@ -87,9 +87,11 @@ Left out on purpose, so authors have less to fill in: the home-page menu label (
 "I want to"), the order in the role path (reviewers set it; new modules go to the end), and
 disciplines and data types (default "all"). Reviewers can add these in the pull request.
 
-**Module content** starts with an opening paragraph, then the sections *Considerations*,
-*Recommendations* and *More information*. Bullets under *Recommendations* (or *Checklist*, *Steps*)
-become a tickable checklist on the site.
+**Module content** is the page: everything under that heading is published, and shaded notes in the
+template say so. It starts with an opening paragraph; *Considerations*, *Recommendations* and *More
+information* are suggested sections. Authors can add their own sections, sub-headings, numbered and
+nested lists, tables, links and images (tested on a real export). Only bullets under *Recommendations*
+(or *Checklist*, *Steps*) become a tickable checklist; numbered lists stay numbered.
 
 Older Docs made from the v1 or v2 template (with rows such as "Role", "Main process 1/2/3" or
 "Frameworks cited") still convert.
