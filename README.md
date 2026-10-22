@@ -1,6 +1,6 @@
 # EOSC EDEN Support-kit — ELIXIR Toolkit Theme demo
 
-> **Branch:** this site lives on `ett` until it replaces the old app on `main`. See HANDOVER.md.
+> **Branch:** this site lives on `ett` until it replaces the old app on `main`. See AGENTS.md.
 
 Plain Jekyll site on the ELIXIR Toolkit Theme (pinned `@7.0.0`), structured like RDMkit.
 Nothing in the theme is overridden: everything EDEN-specific is a new file.

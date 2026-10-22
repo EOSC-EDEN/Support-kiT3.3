@@ -3,3 +3,7 @@ vendor/
 _site/
 .jekyll-cache/
 __pycache__/
+
+# local-only reference material (not part of the kit)
+wp1-cpp-descriptions/
+MATERIALS/
