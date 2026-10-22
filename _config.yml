@@ -7,6 +7,7 @@ repository: EOSC-EDEN/support-kit3.3   # needed by jekyll-github-metadata when b
 exclude:
   - .gitignore
   - AGENTS.md
+  - AI_CONTRIBUTING.md
   - MATERIALS
   - wp1-cpp-descriptions
   - var/

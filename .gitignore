@@ -7,3 +7,7 @@ __pycache__/
 # local-only reference material (not part of the kit)
 wp1-cpp-descriptions/
 MATERIALS/
+
+# local AI tool config (see AI_CONTRIBUTING.md)
+CLAUDE.md
+.claude/

@@ -2,6 +2,7 @@
 
 Guidance for coding agents (and people) working on the EOSC EDEN T3.3 support-kit.
 How to run the site and set up the Google Docs pipeline is in `README.md`.
+Rules for AI-assisted work (Claude, Qwen and others) are in `AI_CONTRIBUTING.md`.
 
 ## What this is
 
