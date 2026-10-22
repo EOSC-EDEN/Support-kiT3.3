@@ -254,7 +254,7 @@ def clean_body(lines, page_id):
         name = f"{page_id}-{n}.{ 'jpg' if ext == 'jpeg' else ext}"
         img_dir.mkdir(parents=True, exist_ok=True)
         (img_dir / name).write_bytes(base64.b64decode(data.split(",", 1)[1]))
-        text = text.replace(f"![][{key}]", f"![](/assets/img/modules/{name})")
+        text = text.replace(f"![][{key}]", f"![]({{{{ '/assets/img/modules/{name}' | relative_url }}}})")
         warnings.append(f"image saved as assets/img/modules/{name}; add alt text in the page")
     # Sections with nothing left under them (template sections the author didn't use) are dropped.
     parts = re.split(r"(?m)^(?=#{2,6} )", text)

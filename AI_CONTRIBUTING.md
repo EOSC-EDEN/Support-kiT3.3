@@ -3,12 +3,27 @@
 AI assistants help build and maintain this kit. This page says how we use them, so the
 results stay trustworthy. It is also the project's disclosure of AI use.
 
-## Tools we use
+## Local and public models
 
-- **Claude** (Anthropic), mostly through Claude Code, for code, workflows and documentation.
-- **Qwen** (Alibaba), including Qwen Coder models, which can run locally or self-hosted
-  (for example with Ollama or vLLM). Prefer these when the text must not leave our machines.
-- **Others** are fine (GPT, Gemini, Mistral, GitHub Copilot and so on) under the same rules.
+What decides which model you may use is **where the text goes**, not which model it is.
+
+**Local models** run on your own machine or on project-controlled servers, so nothing leaves
+them. Examples: **Qwen** (including Qwen Coder), Llama, Mistral's open models, DeepSeek, run with
+Ollama, LM Studio or vLLM. Use these for anything not yet public: unpublished module drafts,
+author comments, personal data, internal documents.
+
+**Public models** are hosted services run by a company. Examples: **Claude** (Anthropic; Claude
+Code, claude.ai, API), ChatGPT and the OpenAI API, Gemini, GitHub Copilot, Mistral Le Chat, and
+Qwen when used through Alibaba Cloud's API. Use them for material that is already public or meant
+to be: this repository's code, workflows and published pages. For anything else, ask the data owner
+first and check the service's data-use and retention terms.
+
+| | Local | Public |
+|---|---|---|
+| Data leaves our control | No | Yes |
+| Unpublished drafts, personal data | Yes | Only with the owner's agreement |
+| Repository code and published content | Yes | Yes |
+| Good for | Drafting and editing unpublished module text | Code, workflows and documentation in this repository |
 
 Coding agents should read [`AGENTS.md`](AGENTS.md) first: it holds the rules, layout,
 commands and front-matter format. Point your tool at it. In Claude Code, a local
@@ -23,9 +38,8 @@ commands and front-matter format. Point your tool at it. In Claude Code, a local
    against `_data/` or the original source. Never invent `cpps_primary`.
 3. **Suggestions stay suggestions.** Machine-made links between modules, CPPs and indicators
    (`var/suggest_anchors.py` or any model) are only proposals until a person accepts them.
-4. **Mind what you paste.** Don't send secrets, tokens, personal data or unpublished module
-   drafts to a hosted model unless the data owner agrees. Use a local or EU-hosted model
-   when in doubt.
+4. **Mind what you paste.** Never send secrets or tokens to any model. Unpublished drafts and
+   personal data go to local models only, unless the data owner agrees (see above).
 5. **Licensing.** Generated content must fit the kit's licences (CC BY 4.0 for content). Don't
    ask a model to reproduce copyrighted text, and don't paste such text in.
 6. **Same checks as human work.** Run `python3 var/check_modules.py`, the converter tests after
