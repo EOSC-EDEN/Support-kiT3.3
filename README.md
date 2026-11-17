@@ -124,9 +124,8 @@ needs the following, in this order. About 20–30 minutes, most of it in Google 
 
 **1. Code on GitHub**
 - `ett` pushed, with the current converter.
-- A copy of `.github/workflows/gdocs-to-pr.yml` on `main`. GitHub only runs scheduled workflows,
-  and only offers "Run workflow", from the default branch; the copy checks out `KIT_BRANCH` itself.
-  Once it is on `main` the hourly schedule starts; without the key below it reports nothing to scan.
+- `ett` is the repository's default branch (since 2026-11-17), so the schedules (Docs hourly, WP1
+  weekly) and "Run workflow" work from it. `main` keeps the old app and is not used by these workflows.
 
 **2. Google Cloud service account** (console.cloud.google.com, as the owner of the Drive folder)
 1. Create a project, for example "eden-support-kit".
@@ -139,10 +138,13 @@ needs the following, in this order. About 20–30 minutes, most of it in Google 
 
 **3. GitHub settings**
 ```bash
-gh secret   set GDRIVE_SA_KEY       -R EOSC-EDEN/Support-kiT3.3 < ~/Downloads/<key>.json
+jq -c . ~/Downloads/<key>.json | gh secret set GDRIVE_SA_KEY -R EOSC-EDEN/Support-kiT3.3   # one line!
 gh variable set GDRIVE_READY_FOLDER -R EOSC-EDEN/Support-kiT3.3 --body 1qTIuQq-G62Bf6-CZgTxH-C4KevIcWnGI
 gh variable set KIT_BRANCH          -R EOSC-EDEN/Support-kiT3.3 --body ett
 ```
+- Save the key as **one line** (`jq -c`, as above). GitHub hides secrets line by line: a multi-line
+  JSON key makes lines like `{` secret, and every output containing a brace (the list of Docs) is
+  then dropped as "may contain secret".
 - Settings › Actions › General › Workflow permissions: "Read and write permissions", and tick
   "Allow GitHub Actions to create and approve pull requests".
 - Optional: secret `KIT_BOT_TOKEN` (fine-grained token or GitHub App token with contents and

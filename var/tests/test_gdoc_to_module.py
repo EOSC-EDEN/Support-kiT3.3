@@ -75,5 +75,12 @@ check("extra content: numbered and nested lists, tables kept", "1. Run DROID on 
 check("extra content: only Recommendations bullets become a checklist", "- [ ] Identify every file." in page
       and "- [ ] DROID" not in page and "- [ ] Which formats" not in page)
 
+# The workflow passes the Doc list between jobs; GitHub drops outputs that contain part of a
+# secret (a multi-line JSON key makes "{" secret), so the list must be plain IDs, no braces.
+import os
+r = subprocess.run([sys.executable, str(ROOT / "var/gdocs_sync.py"), "list"], capture_output=True, text=True, cwd=ROOT,
+                   env={**os.environ, "GDRIVE_SA_KEY": "", "DOC_INPUT": "https://docs.google.com/document/d/1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U/edit?tab=t.0"})
+check("gdocs_sync list: plain ID list, no braces", r.stdout.strip() == 'docs=["1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U"]')
+
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)

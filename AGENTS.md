@@ -17,7 +17,7 @@ Rules for AI-assisted work (Claude, Qwen and others) are in `AI_CONTRIBUTING.md`
 
 ## Rules
 
-1. Work on branch **`ett`**. `main` keeps the old vanilla-JS app until the cut-over. Don't extend the old app.
+1. Work on branch **`ett`** (the default branch). `main` keeps the old vanilla-JS app until the cut-over. Don't extend the old app.
 2. **Ask before** pushing, force-pushing, opening PRs, or changing repository settings, secrets or variables.
 3. Commit as the user. No AI co-author trailers in commit messages (the README already notes AI use).
 4. **Never override an ETT theme file.** Add new files instead (`_includes/kit-*.html`, `_layouts/module.html`,
@@ -121,7 +121,7 @@ Body: opening paragraph, `##` sections, recommendations as `- [ ]` items, refere
 - **Pages:** `pages.yml` publishes the old app from `main` at `/` and the kit from `ett` at `/ett`
   (https://eosc-eden.github.io/Support-kiT3.3/ett/). Identical copy needed on `main`. Links must use
   `relative_url`, never a bare `/`.
-- Scheduled workflows only fire from the default branch; while `ett` isn't default they need a copy on `main`.
+- `ett` has been the default branch since 2026-11-17, so its schedules run; `main` is left as it is.
 
 ## Google Drive items
 

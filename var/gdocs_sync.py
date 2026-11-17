@@ -51,6 +51,16 @@ def out(name, value):
 
 
 def cmd_list():
+    try:
+        _list()
+    except Exception as e:   # e.g. Drive API disabled, folder not shared with the service account
+        print(f"::error::Google Drive refused the request: {e}. Check that the Drive API is enabled for the "
+              "service account's project and that the ready folder (and any Doc you named) is shared with it.",
+              file=sys.stderr)
+        sys.exit(1)
+
+
+def _list():
     svc = drive()
     single = os.environ.get("DOC_INPUT", "").strip()
     if single:
@@ -58,7 +68,8 @@ def cmd_list():
         name = did
         if svc:
             name = svc.files().get(fileId=did, fields="name", supportsAllDrives=True).execute()["name"]
-        out("docs", json.dumps([{"id": did, "name": name}]))
+        print(f"1 Doc to process: {name}", file=sys.stderr)
+        out("docs", json.dumps([did]))
         return
     folder = os.environ.get("GDRIVE_READY_FOLDER", "").strip()
     if not svc or not folder:
@@ -83,7 +94,11 @@ def cmd_list():
         docs = [d for d in docs
                 if dt.datetime.fromisoformat(d["modifiedTime"].replace("Z", "+00:00")) > since or d["id"] not in known]
     print(f"{len(docs)} Doc(s) to process", file=sys.stderr)
-    out("docs", json.dumps([{"id": d["id"], "name": d["name"]} for d in docs]))
+    for d in docs:
+        print(f"  {d['id']}  {d['name']}", file=sys.stderr)
+    # Plain IDs only: GitHub drops a job output that contains any part of a secret, and a
+    # multi-line JSON key makes lines like "{" secret, so an output with braces would vanish.
+    out("docs", json.dumps([d["id"] for d in docs]))
 
 
 def known_docs():

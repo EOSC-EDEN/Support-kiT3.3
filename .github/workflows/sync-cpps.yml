@@ -6,9 +6,7 @@
 # a CPP that WP1 removed while modules still tag it is flagged and labelled needs-attention.
 #
 # Branch: the PR targets repository variable KIT_BRANCH (default: ett).
-# GitHub only runs scheduled workflows from the DEFAULT branch. While `ett` is not the
-# default branch, keep a copy of this file on the default branch too (it checks out
-# KIT_BRANCH itself), or run it by hand from the Actions tab.
+# GitHub runs schedules only from the default branch; `ett` is the default branch since 2026-11-17.
 name: Sync CPPs from WP1
 
 on:
@@ -31,7 +29,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ vars.KIT_BRANCH || 'ett' }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
