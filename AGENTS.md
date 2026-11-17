@@ -113,6 +113,8 @@ Body: opening paragraph, `##` sections, recommendations as `- [ ]` items, refere
   content changed.
 - **Google Docs → PR:** `gdocs-to-pr.yml` lists Docs in the "ready" Drive folder, converts each with
   `var/gdoc_to_module.py` and opens one PR per Doc (`gdocs/<docId>`). Failures become a comment in the Doc.
+  Comments are anchored with the Docs API (`insertComment`): the summary on the Title cell, each point to
+  check on its cell (`gdocs_sync.py mark`). Drive API comments can't be anchored; they are only the fallback.
   The converter is deliberately forgiving (Google export quirks, loose roles/kinds/CPP names); keep it so.
   The template is a plain table filled in free text, with no dropdowns. Styling (yellow value cells, grey
   guidance) is cosmetic; the converter reads text only, so test a real export after any template change.

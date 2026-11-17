@@ -116,3 +116,8 @@ jobs:
         run: |
           printf 'Sent to the support-kit for review: %s\nKeep editing here; changes to this Doc update the review automatically.%s' "$PR_URL" "$NOTES" \
             | python3 var/gdocs_sync.py comment "${{ matrix.doc }}"
+
+      - name: Mark the points to check in the Doc
+        # One comment per point, on the table cell it is about (Google Docs API); never fails the run.
+        if: steps.convert.outputs.ok == 'true'
+        run: python3 var/gdocs_sync.py mark "${{ matrix.doc }}"

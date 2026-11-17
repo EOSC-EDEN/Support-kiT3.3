@@ -6,8 +6,10 @@ Authors never run this. GitHub Actions calls it:
   gdocs_sync.py list              which Docs to process (prints `docs=<json>` for $GITHUB_OUTPUT)
   gdocs_sync.py convert DOC_ID    export one Doc as Markdown, turn it into a module page,
                                   print outputs for the pull-request step
-  gdocs_sync.py comment DOC_ID    add a comment to the Doc (text on stdin), so authors get
-                                  feedback where they write
+  gdocs_sync.py comment DOC_ID    add a comment to the Doc (text on stdin), anchored to the
+                                  Title cell, so authors get feedback where they write
+  gdocs_sync.py mark DOC_ID       one comment per point to check, anchored to the table cell
+                                  (and the words) it is about
 
 Environment:
   GDRIVE_SA_KEY         service-account JSON key (GitHub secret). The ready folder is shared
@@ -24,7 +26,10 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RECENT_MINUTES = 75   # scheduled runs are hourly; overlap a little so nothing is missed
 
 
-def drive():
+ISSUES = pathlib.Path(os.environ.get("RUNNER_TEMP") or tempfile.gettempdir()) / "gdocs-issues.json"
+
+
+def _service(name, version):
     key = os.environ.get("GDRIVE_SA_KEY", "").strip()
     if not key:
         return None
@@ -32,7 +37,107 @@ def drive():
     from googleapiclient.discovery import build
     creds = service_account.Credentials.from_service_account_info(
         json.loads(key), scopes=["https://www.googleapis.com/auth/drive"])
-    return build("drive", "v3", credentials=creds, cache_discovery=False)
+    return build(name, version, credentials=creds, cache_discovery=False)
+
+
+def drive():
+    return _service("drive", "v3")
+
+
+# --- Anchored comments (Google Docs API insertComment) ---------------------------------
+# The Drive API can only add comments that are not attached to any text; those never show in
+# the margin. The Docs API can anchor a comment to a text range, so each point to check sits
+# on the cell (and the words) it is about. Needs the Google Docs API enabled in the project.
+
+# Which table row a converter message is about: (words in the message, row labels in the Doc).
+ROWS = [("'main processes'", {"main processes", "processes it mainly teaches", "main process 1"}),
+        ("no main process", {"main processes", "processes it mainly teaches", "main process 1"}),
+        ("'other processes'", {"other processes", "other processes it applies"}),
+        ("who is it for", {"who is it for", "role"}),
+        ("kind of help", {"kind of help"}),
+        ("'i want to'", {"i want to"}),
+        ("short task", {"short task"}),
+        ("order `", {"order in the role path", "order"}),
+        ("framework `", {"frameworks", "frameworks cited"}),
+        ("contributor `", {"contributors"}),
+        ("related module `", {"related modules"}),
+        ("title", {"title"})]
+
+
+def _norm(s):
+    return re.sub(r"[^a-z0-9 ]", "", s.lower()).strip()
+
+
+def row_for(msg):
+    """(row labels, words to highlight) for a converter message, or None if it names no row."""
+    low = msg.lower()
+    for words, labels in ROWS:
+        if words in low:
+            m = re.search(r"`([^`]+)`", msg)
+            return labels, (m.group(1) if m else None)
+    return None
+
+
+def _runs(content):
+    return [(pe["startIndex"], pe["textRun"]["content"])
+            for el in content for pe in el.get("paragraph", {}).get("elements", []) if "textRun" in pe]
+
+
+def _span(runs, needle=None):
+    """UTF-16 range of `needle` inside the runs, or of their visible text when there is no needle."""
+    chars, pos = [], []
+    for start, text in runs:
+        i = start
+        for ch in text:
+            chars.append(ch); pos.append(i)
+            i += 2 if ord(ch) > 0xFFFF else 1
+    full = "".join(chars)
+    if needle:
+        k = full.lower().find(needle.lower())
+        if k < 0:
+            return None
+        a, b = k, k + len(needle) - 1
+    else:
+        stripped = [k for k, ch in enumerate(full) if not ch.isspace()]
+        if not stripped:
+            return None
+        a, b = stripped[0], stripped[-1]
+    return pos[a], pos[b] + (2 if ord(full[b]) > 0xFFFF else 1)
+
+
+def locate(doc, labels, needle=None):
+    """(tabId, start, end) for a metadata row: the needle in the value cell, else the value, else the label."""
+    tab = doc["tabs"][0] if doc.get("tabs") else None
+    body = (tab["documentTab"]["body"] if tab else doc["body"])["content"]
+    tab_id = tab["tabProperties"]["tabId"] if tab else None
+    for el in body:
+        for row in el.get("table", {}).get("tableRows", []):
+            cells = row["tableCells"]
+            if len(cells) < 2 or _norm("".join(t for _, t in _runs(cells[0]["content"]))) not in labels:
+                continue
+            value = _runs(cells[1]["content"])
+            hit = (needle and _span(value, needle)) or _span(value) or _span(_runs(cells[0]["content"]))
+            return (tab_id, *hit) if hit else None
+    return None
+
+
+def _open_bot_comments(svc, did):
+    texts, token = set(), None
+    while True:
+        r = svc.comments().list(fileId=did, fields="nextPageToken, comments(content, resolved, author(me))",
+                                includeDeleted=False, pageToken=token, pageSize=100).execute()
+        texts |= {c.get("content", "").strip() for c in r.get("comments", [])
+                  if c.get("author", {}).get("me") and not c.get("resolved")}
+        token = r.get("nextPageToken")
+        if not token:
+            return texts
+
+
+def _anchored(docs, did, doc, text, where):
+    tab_id, start, end = where
+    rng = {"startIndex": start, "endIndex": end, **({"tabId": tab_id} if tab_id else {})}
+    docs.documents().batchUpdate(documentId=did, body={"requests": [
+        {"insertComment": {"content": text[:2000], "range": rng}}]}).execute()
 
 
 def doc_id(text):
@@ -138,6 +243,8 @@ def cmd_convert(did):
     print(log, file=sys.stderr)
     problems = [l.split(":", 1)[1].strip() for l in log.splitlines() if l.startswith("error:")]
     notes = [l.split(":", 1)[1].strip() for l in log.splitlines() if l.startswith("warning:")]
+    ISSUES.write_text(json.dumps([{"kind": "error", "msg": p} for p in problems]
+                                 + [{"kind": "warning", "msg": n} for n in notes]), encoding="utf-8")
     m = re.search(r"^wrote (pages/\S+\.md)$", log, re.M)
     if r.returncode != 0 or not m:
         out("ok", "false")
@@ -184,7 +291,7 @@ def cmd_convert(did):
              "Changes go back into the Google Doc, not into this branch: the next edit to the Doc updates this pull request.",
              "", "_Opened automatically by the Google Docs to pull request workflow._"]
     out("body", "\n".join(body))
-    out("notes", ("\n\nA few things the reviewers will check (you can fix them here):\n" + "\n".join(f"• {n}" for n in notes[:6])) if notes else "")
+    out("notes", ("\n\nA few things the reviewers will check (marked in the Doc where possible; you can fix them here):\n" + "\n".join(f"• {n}" for n in notes[:6])) if notes else "")
 
 
 def cmd_comment(did):
@@ -193,26 +300,55 @@ def cmd_comment(did):
     if not text or not svc:
         print("nothing to post (no text or no service-account key)", file=sys.stderr)
         return
-    # Skip if the bot's latest open comment already says the same thing (hourly runs on an unchanged Doc).
-    mine = []
-    token = None
-    while True:
-        r = svc.comments().list(fileId=did, fields="nextPageToken, comments(content, resolved, author(me))",
-                                includeDeleted=False, pageToken=token, pageSize=100).execute()
-        mine += [c for c in r.get("comments", []) if c.get("author", {}).get("me")]
-        token = r.get("nextPageToken")
-        if not token:
-            break
-    if mine and not mine[-1].get("resolved") and mine[-1].get("content", "").strip() == text:
+    # Skip if the bot already has the same open comment (hourly runs on an unchanged Doc).
+    if text in _open_bot_comments(svc, did):
         print("same comment already in the Doc; not repeated", file=sys.stderr)
         return
+    try:                                   # in the margin, on the Title cell
+        docs = _service("docs", "v1")
+        doc = docs.documents().get(documentId=did).execute()
+        where = locate(doc, {"title"})
+        if where:
+            _anchored(docs, did, doc, text, where)
+            print("comment added on the Title cell", file=sys.stderr)
+            return
+    except Exception as e:
+        print(f"::warning::Anchored comment failed ({e}); adding it to the whole Doc instead. "
+              "Is the Google Docs API enabled for the service account's project?", file=sys.stderr)
     svc.comments().create(fileId=did, body={"content": text}, fields="id").execute()
     print("comment added", file=sys.stderr)
 
 
+def cmd_mark(did):
+    """One comment per point to check, on the cell it is about. Never fails the run."""
+    if not ISSUES.exists() or not drive():
+        print("nothing to mark", file=sys.stderr)
+        return
+    issues = json.loads(ISSUES.read_text(encoding="utf-8"))
+    try:
+        svc, docs = drive(), _service("docs", "v1")
+        doc = docs.documents().get(documentId=did).execute()
+        done, posted = _open_bot_comments(svc, did), 0
+        for it in issues:
+            target = row_for(it["msg"])
+            where = target and locate(doc, *target)
+            if not where:
+                continue                        # names no row: it is in the summary comment and the PR
+            text = ("Please fix: " if it["kind"] == "error" else "The reviewers will check this: ") + it["msg"]
+            if text in done:
+                continue
+            _anchored(docs, did, doc, text, where)
+            posted += 1
+        print(f"{posted} point(s) marked in the Doc", file=sys.stderr)
+    except Exception as e:
+        print(f"::warning::Could not mark points in the Doc ({e}). They are still listed in the summary "
+              "comment and the pull request. Is the Google Docs API enabled for the project?", file=sys.stderr)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2 or sys.argv[1] not in ("list", "convert", "comment"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("list", "convert", "comment", "mark"):
         sys.exit(__doc__)
     {"list": lambda: cmd_list(),
      "convert": lambda: cmd_convert(doc_id(sys.argv[2])),
-     "comment": lambda: cmd_comment(doc_id(sys.argv[2]))}[sys.argv[1]]()
+     "comment": lambda: cmd_comment(doc_id(sys.argv[2])),
+     "mark": lambda: cmd_mark(doc_id(sys.argv[2]))}[sys.argv[1]]()

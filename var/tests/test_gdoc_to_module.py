@@ -82,5 +82,22 @@ r = subprocess.run([sys.executable, str(ROOT / "var/gdocs_sync.py"), "list"], ca
                    env={**os.environ, "GDRIVE_SA_KEY": "", "DOC_INPUT": "https://docs.google.com/document/d/1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U/edit?tab=t.0"})
 check("gdocs_sync list: plain ID list, no braces", r.stdout.strip() == 'docs=["1uovzhpRg4qmZ_cuc4yztmXPzBpFgJrXjzitlbYrad1U"]')
 
+# Anchored Doc comments: which row a converter message is about, and where that text sits
+# in the real Doc structure (a documents.get read of a filled v3 template copy).
+sys.path.insert(0, str(ROOT / "var"))
+import gdocs_sync as g
+import json as _json
+doc = _json.loads((FIX / "v3_doc_structure.json").read_text())
+check("anchor: contributor message -> exact name in the Contributors cell",
+      g.locate(doc, *g.row_for("Contributor `Arijit Laik` is not in _data/CONTRIBUTORS.yml yet; add them with their ORCID")) == ("t.0", 2371, 2382))
+w = g.locate(doc, {"title"})
+check("anchor: summary comment -> the Title value", w and w[2] - w[1] == len("Creating checksums before deposit"))
+w = g.locate(doc, *g.row_for("'Other processes': read `integrity checking` as CPP-003 Integrity Checking; check this is right"))
+check("anchor: process message -> the words in the Other processes cell", w and w[2] - w[1] == len("integrity checking"))
+w = g.locate(doc, *g.row_for("Framework `nestro` not recognised; left out"))
+check("anchor: word not found -> whole Frameworks value", w and w[2] - w[1] == len("CoreTrustSeal R14"))
+check("anchor: messages that name no row are not anchored",
+      g.row_for("3 line(s) of the content were still template text and were left out") is None)
+
 print(f"\n{fails} failure(s)")
 sys.exit(1 if fails else 0)
