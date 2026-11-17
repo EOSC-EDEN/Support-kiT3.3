@@ -63,7 +63,7 @@ jobs:
           } > "$RUNNER_TEMP/body.md"
 
       - name: Open or update the pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           # A token other than GITHUB_TOKEN lets the site build check run on the PR (optional).
           token: ${{ secrets.KIT_BOT_TOKEN || github.token }}
