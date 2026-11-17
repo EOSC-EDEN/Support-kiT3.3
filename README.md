@@ -159,7 +159,9 @@ gh workflow run gdocs-to-pr.yml -R EOSC-EDEN/Support-kiT3.3 --ref main \
 Check that:
 - a pull request "Module: Checking file formats on ingest" opens from `gdocs/<doc id>` into `ett`,
   labelled `from-google-docs` and `needs-attention`;
-- the example Doc gets a comment with the link to that pull request;
+- the example Doc gets a comment with the link to that pull request. The Drive API can't attach a
+  comment to text in a Google Doc, so it doesn't show in the margin: open the comments panel
+  (speech-bubble icon, top right). The template and reference sheet tell authors this;
 - a Doc moved into the ready folder (no link given) is picked up by the next hourly run.
 
 Without the service account, a manual run falls back to the Doc's public export link

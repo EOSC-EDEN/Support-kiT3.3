@@ -86,7 +86,7 @@ out += ['<h1>Frameworks</h1>',
         '<li>Images are fine; add a short description of each in the text.</li></ul>',
         '<h1>What happens after you hand in</h1><ol>',
         '<li>Move the Doc into the folder “EDEN Support-kit – ready for the kit”.</li>',
-        '<li>Within the hour you get a comment in the Doc with a link to the review and anything the reviewers will check.</li>',
+        '<li>Within the hour you get a comment in the Doc with a link to the review and anything the reviewers will check. It is not attached to any text, so open the comments panel (speech-bubble icon, top right) to see it.</li>',
         '<li>Keep editing the Doc; each change updates the review.</li>',
         '<li>When the reviewers merge it, the module appears on the website.</li></ol>',
         '</body></html>']
