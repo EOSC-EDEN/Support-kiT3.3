@@ -1,4 +1,4 @@
-This demo solution in the main branch should present you with the following functionality as of now: 
+This demo solution in this branch should present you with the following functionality as of now: 
 
 ## Content
 Markdown files with front matter, located in folder articles, are the basis for the web content. The solution is further based on html, vanilla javascript, css styling and json. Github actions is used. AI have been used to produce and check code. 
