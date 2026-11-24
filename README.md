@@ -1,6 +1,8 @@
-**The code here is an early mockup of Support kit T3.3 - and gh pages connected to the branch orphant.** 
+**The code here is an early mockup of Support kit T3.3 from late summer 2026.** 
 
 **AI have been used in the process to create and check code for the mockup.** 
+
+This code can be reused, if relevant. 
 
 **The files** are htmls, javascripts, css styling and json for content (the branch also includes a local copy of markdown-it). Should run on any web server as is.
 
